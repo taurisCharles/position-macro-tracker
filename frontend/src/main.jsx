@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
   AlertTriangle,
@@ -9,6 +9,7 @@ import {
   Database,
   Gauge,
   LineChart,
+  Radar,
   Search,
   ShieldCheck,
   Table2,
@@ -21,6 +22,7 @@ const navItems = [
   { id: "screener", label: "Screener", icon: Search },
   { id: "watchlists", label: "Watchlists", icon: Table2 },
   { id: "ticker", label: "Ticker Detail", icon: LineChart },
+  { id: "chart", label: "Chart Workspace", icon: Radar },
   { id: "positions", label: "Positions", icon: CircleDollarSign },
   { id: "alerts", label: "Alerts", icon: Bell },
   { id: "data", label: "Data Health", icon: Database },
@@ -45,7 +47,7 @@ const macro = {
   ],
 };
 
-const tickers = [
+const seedTickers = [
   {
     symbol: "GOOGL",
     name: "Alphabet",
@@ -225,17 +227,19 @@ const sources = [
 function App() {
   const [route, setRoute] = useState("command");
   const [selected, setSelected] = useState("GOOGL");
+  const [tickers, setTickers] = useLocalStorage("codex.tickers", seedTickers);
   const selectedTicker = tickers.find((ticker) => ticker.symbol === selected) || tickers[0];
 
   return (
     <div className="app">
       <Sidebar route={route} setRoute={setRoute} />
       <main>
-        {route === "command" && <CommandCenter setRoute={setRoute} setSelected={setSelected} />}
+        {route === "command" && <CommandCenter tickers={tickers} setRoute={setRoute} setSelected={setSelected} />}
         {route === "macro" && <MacroRegime />}
-        {route === "screener" && <Screener setRoute={setRoute} setSelected={setSelected} />}
-        {route === "watchlists" && <Watchlists setRoute={setRoute} setSelected={setSelected} />}
-        {route === "ticker" && <TickerDetail ticker={selectedTicker} setSelected={setSelected} />}
+        {route === "screener" && <Screener tickers={tickers} setTickers={setTickers} setRoute={setRoute} setSelected={setSelected} />}
+        {route === "watchlists" && <Watchlists tickers={tickers} setRoute={setRoute} setSelected={setSelected} />}
+        {route === "ticker" && <TickerDetail ticker={selectedTicker} tickers={tickers} setRoute={setRoute} setSelected={setSelected} />}
+        {route === "chart" && <ChartWorkspace ticker={selectedTicker} tickers={tickers} setSelected={setSelected} />}
         {route === "positions" && <Positions />}
         {route === "alerts" && <Alerts />}
         {route === "data" && <DataHealth />}
@@ -243,6 +247,27 @@ function App() {
       </main>
     </div>
   );
+}
+
+function useLocalStorage(key, initialValue) {
+  const [value, setValue] = useState(() => {
+    try {
+      const stored = window.localStorage.getItem(key);
+      return stored ? JSON.parse(stored) : initialValue;
+    } catch {
+      return initialValue;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(key, JSON.stringify(value));
+    } catch {
+      // Persistence is best-effort in the prototype.
+    }
+  }, [key, value]);
+
+  return [value, setValue];
 }
 
 function Sidebar({ route, setRoute }) {
@@ -292,7 +317,7 @@ function Header({ kicker, title, copy, action }) {
   );
 }
 
-function CommandCenter({ setRoute, setSelected }) {
+function CommandCenter({ tickers, setRoute, setSelected }) {
   return (
     <>
       <Header
@@ -400,9 +425,19 @@ function MacroRegime() {
   );
 }
 
-function Screener({ setRoute, setSelected }) {
+function Screener({ tickers, setTickers, setRoute, setSelected }) {
   const [mode, setMode] = useState("mature");
+  const [showAdd, setShowAdd] = useState(false);
   const rows = mode === "startup" ? tickers.filter((t) => t.group === "Speculative Sleeve") : tickers.filter((t) => t.group !== "Speculative Sleeve");
+  function addTicker(ticker) {
+    setTickers((current) => {
+      const withoutDuplicate = current.filter((item) => item.symbol !== ticker.symbol);
+      return [ticker, ...withoutDuplicate];
+    });
+    setSelected(ticker.symbol);
+    setShowAdd(false);
+  }
+
   return (
     <>
       <Header
@@ -415,10 +450,11 @@ function Screener({ setRoute, setSelected }) {
               <option value="mature">Mature business lane</option>
               <option value="startup">Startup / speculative lane</option>
             </select>
-            <button className="btn primary">Add Ticker</button>
+            <button className="btn primary" onClick={() => setShowAdd((value) => !value)}>Add Ticker</button>
           </div>
         }
       />
+      {showAdd && <AddTickerForm mode={mode} onAdd={addTicker} onCancel={() => setShowAdd(false)} />}
       <section className="summary">
         <Stat label="Universe" value={rows.length} />
         <Stat label="Qualified" value={rows.filter((r) => r.gates.every((g) => g === "pass")).length} tone="good" />
@@ -432,7 +468,7 @@ function Screener({ setRoute, setSelected }) {
   );
 }
 
-function Watchlists({ setRoute, setSelected }) {
+function Watchlists({ tickers, setRoute, setSelected }) {
   const groups = useMemo(() => Array.from(new Set(tickers.map((ticker) => ticker.group))), []);
   return (
     <>
@@ -460,14 +496,92 @@ function Watchlists({ setRoute, setSelected }) {
   );
 }
 
-function TickerDetail({ ticker, setSelected }) {
+function AddTickerForm({ mode, onAdd, onCancel }) {
+  const [form, setForm] = useState({
+    symbol: "",
+    name: "",
+    price: "",
+    fair: "",
+    add: "",
+    truck: "",
+    thesis: "",
+    group: mode === "startup" ? "Speculative Sleeve" : "Out-of-Favor Quality",
+  });
+
+  function update(key, value) {
+    setForm((current) => ({ ...current, [key]: value }));
+  }
+
+  function submit(event) {
+    event.preventDefault();
+    const symbol = form.symbol.trim().toUpperCase();
+    if (!symbol) return;
+
+    onAdd({
+      symbol,
+      name: form.name.trim() || symbol,
+      group: form.group,
+      state: form.group === "Speculative Sleeve" ? "SPECULATIVE" : "WATCHLIST",
+      tier: form.group === "Speculative Sleeve" ? "S" : "B",
+      price: toNumber(form.price) || 0,
+      fair: toNumber(form.fair),
+      add: toNumber(form.add),
+      truck: toNumber(form.truck),
+      distance: null,
+      confluence: "Manual watchlist entry",
+      gates: form.group === "Speculative Sleeve" ? ["warn", "warn", "warn", "warn"] : ["warn", "warn", "warn", "warn"],
+      kill: "Needs kill criterion",
+      thesis: form.thesis.trim() || "New candidate. Thesis and kill criterion need underwriting.",
+      earningsBasis: form.group === "Speculative Sleeve" ? "pre_profit" : "manual",
+      drift: "Needs first review",
+      support: "Not checked",
+    });
+  }
+
+  return (
+    <section className="panel add-form-panel">
+      <div className="panel-head">
+        <h3>Add Ticker</h3>
+        <Pill>localStorage prototype</Pill>
+      </div>
+      <form className="add-form" onSubmit={submit}>
+        <label>Symbol<input value={form.symbol} onChange={(event) => update("symbol", event.target.value)} placeholder="GOOGL" /></label>
+        <label>Name<input value={form.name} onChange={(event) => update("name", event.target.value)} placeholder="Company name" /></label>
+        <label>Lane<select value={form.group} onChange={(event) => update("group", event.target.value)}>
+          <option>Out-of-Favor Quality</option>
+          <option>Needs Pullback</option>
+          <option>Cyclicals - Wait</option>
+          <option>Owned Income</option>
+          <option>Speculative Sleeve</option>
+          <option>Rejected</option>
+        </select></label>
+        <label>Current<input type="number" step="0.01" value={form.price} onChange={(event) => update("price", event.target.value)} /></label>
+        <label>Fair<input type="number" step="0.01" value={form.fair} onChange={(event) => update("fair", event.target.value)} /></label>
+        <label>Add<input type="number" step="0.01" value={form.add} onChange={(event) => update("add", event.target.value)} /></label>
+        <label>Truck<input type="number" step="0.01" value={form.truck} onChange={(event) => update("truck", event.target.value)} /></label>
+        <label className="wide">Thesis<textarea value={form.thesis} onChange={(event) => update("thesis", event.target.value)} placeholder="One-sentence thesis and what would falsify it." /></label>
+        <div className="form-actions">
+          <button className="btn" type="button" onClick={onCancel}>Cancel</button>
+          <button className="btn primary" type="submit">Save Ticker</button>
+        </div>
+      </form>
+    </section>
+  );
+}
+
+function TickerDetail({ ticker, tickers, setRoute, setSelected }) {
   return (
     <>
       <Header
         kicker="Ticker Detail"
         title={`${ticker.symbol} - ${ticker.name}`}
         copy={ticker.thesis}
-        action={<TickerSelect selected={ticker.symbol} setSelected={setSelected} />}
+        action={
+          <div className="toolbar">
+            <TickerSelect tickers={tickers} selected={ticker.symbol} setSelected={setSelected} />
+            <button className="btn" onClick={() => setRoute("chart")}>Open Chart</button>
+          </div>
+        }
       />
       <section className="ticker-hero">
         <Stat label="State" value={ticker.state} />
@@ -500,6 +614,56 @@ function TickerDetail({ ticker, setSelected }) {
             <div className="box"><strong>Next action</strong><p>{nextAction(ticker)}</p></div>
           </div>
         </Panel>
+      </section>
+    </>
+  );
+}
+
+function ChartWorkspace({ ticker, tickers, setSelected }) {
+  const technicals = buildTechnicals(ticker);
+  const [layers, setLayers] = useState({ ma: true, fib: true, rsi: true, atr: true });
+  function toggle(key) {
+    setLayers((current) => ({ ...current, [key]: !current[key] }));
+  }
+
+  return (
+    <>
+      <Header
+        kicker="Chart Workspace"
+        title={`${ticker.symbol} Technicals`}
+        copy="Prototype chart workspace for support, moving averages, Fibonacci confluence, RSI, ATR stops, and source freshness. Real bars will come from the price-history pipe."
+        action={<TickerSelect tickers={tickers} selected={ticker.symbol} setSelected={setSelected} />}
+      />
+      <section className="chart-layout">
+        <Panel title="Price Structure" meta="mock technicals">
+          <div className="chart-toolbar">
+            {Object.keys(layers).map((key) => (
+              <label className="toggle" key={key}>
+                <input type="checkbox" checked={layers[key]} onChange={() => toggle(key)} /> {key.toUpperCase()}
+              </label>
+            ))}
+          </div>
+          <TechnicalChart ticker={ticker} layers={layers} technicals={technicals} />
+        </Panel>
+        <div className="stack">
+          <Panel title="Computed Levels" meta="replaceable">
+            <div className="level-list">
+              {technicals.levels.map((level) => (
+                <div key={level.label}>
+                  <span>{level.label}</span>
+                  <strong className="num">{money(level.value)}</strong>
+                  <Pill tone={level.tone}>{level.type}</Pill>
+                </div>
+              ))}
+            </div>
+          </Panel>
+          <Panel title="Update Path" meta="data pipe">
+            <div className="box">
+              <strong>No chart database yet</strong>
+              <p>Today this screen is local UI state. Next backend step is storing daily bars in SQLite, computing technical snapshots, then replacing this mock chart with `/api/watchlist/:symbol/technicals`.</p>
+            </div>
+          </Panel>
+        </div>
       </section>
     </>
   );
@@ -697,6 +861,27 @@ function PriceLadder({ ticker }) {
   );
 }
 
+function TechnicalChart({ ticker, layers, technicals }) {
+  return (
+    <div className="chart-box large">
+      {layers.fib && technicals.fib.map((level, index) => (
+        <div className="fib-line" style={{ top: `${level.y}%` }} key={level.label}>
+          <span>{level.label} {money(level.value)}</span>
+        </div>
+      ))}
+      {layers.atr && <div className="stop-line" style={{ top: "78%" }}><span>ATR stop {money(technicals.atrStop)}</span></div>}
+      <svg viewBox="0 0 500 260" preserveAspectRatio="none">
+        {layers.ma && <path className="ma slow" d="M0 166 C70 148 140 162 210 136 S360 112 500 96" />}
+        {layers.ma && <path className="ma fast" d="M0 188 C85 136 155 178 230 132 S390 88 500 126" />}
+        <path className="price" d="M0 205 C55 182 88 110 145 138 S245 198 306 124 S410 82 500 142" />
+        {layers.rsi && <path className="rsi" d="M0 238 C80 230 120 244 190 226 S330 218 500 232" />}
+      </svg>
+      <div className="chart-label left">MA50 {money(technicals.ma50)} / MA200 {money(technicals.ma200)}</div>
+      <div className="chart-label right">{ticker.confluence}</div>
+    </div>
+  );
+}
+
 function ChartPlaceholder({ ticker }) {
   return (
     <div className="chart-box">
@@ -712,7 +897,7 @@ function ChartPlaceholder({ ticker }) {
   );
 }
 
-function TickerSelect({ selected, setSelected }) {
+function TickerSelect({ tickers, selected, setSelected }) {
   return (
     <select className="select" value={selected} onChange={(event) => setSelected(event.target.value)}>
       {tickers.map((ticker) => <option key={ticker.symbol} value={ticker.symbol}>{ticker.symbol}</option>)}
@@ -758,6 +943,39 @@ function nextAction(ticker) {
 function money(value) {
   if (typeof value !== "number") return "N/A";
   return `$${value.toLocaleString(undefined, { maximumFractionDigits: value < 100 ? 2 : 0 })}`;
+}
+
+function toNumber(value) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && value !== "" ? parsed : null;
+}
+
+function buildTechnicals(ticker) {
+  const price = ticker.price || ticker.fair || ticker.add || 100;
+  const high = Math.max(price * 1.16, ticker.fair || 0, ticker.add || 0, 1);
+  const low = Math.max(1, Math.min(price * 0.72, ticker.truck || price * 0.72));
+  const range = high - low || 1;
+  const fib = [
+    ["38.2%", high - range * 0.382, 32],
+    ["50.0%", high - range * 0.5, 44],
+    ["61.8%", high - range * 0.618, 56],
+    ["78.6%", high - range * 0.786, 72],
+  ].map(([label, value, y]) => ({ label, value, y }));
+  const levels = [
+    { label: "Current", value: price, type: "price", tone: "neutral" },
+    { label: "MA50", value: price * 0.96, type: "trend", tone: "warn" },
+    { label: "MA200", value: price * 0.88, type: "primary", tone: "warn" },
+    { label: "Swing low", value: low, type: "support", tone: "good" },
+    { label: "Add", value: ticker.add, type: "fundamental", tone: "warn" },
+    { label: "Truck", value: ticker.truck, type: "fundamental", tone: "good" },
+  ].filter((level) => typeof level.value === "number");
+  return {
+    fib,
+    levels,
+    ma50: price * 0.96,
+    ma200: price * 0.88,
+    atrStop: price * 0.92,
+  };
 }
 
 createRoot(document.getElementById("root")).render(<App />);
