@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Macro Regime 02</title>
+  <style>
+    :root {
+      --bg: oklch(13% 0.018 250); --surface: oklch(18% 0.018 250); --surface-2: oklch(22% 0.018 250);
+      --fg: oklch(93% 0.01 250); --muted: oklch(68% 0.014 250); --dim: oklch(50% 0.014 250);
+      --border: oklch(31% 0.014 250); --accent: oklch(62% 0.15 235); --success: oklch(67% 0.16 150);
+      --warn: oklch(77% 0.16 78); --danger: oklch(64% 0.19 25); --font-body: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", system-ui, sans-serif;
+      --font-mono: "JetBrains Mono", "IBM Plex Mono", ui-monospace, Menlo, monospace;
+    }
+    * { box-sizing: border-box; } html { background: var(--bg); color: var(--fg); color-scheme: dark; }
+    body { margin: 0; min-height: 100vh; font-family: var(--font-body); background: var(--bg); }
+    a { color: inherit; text-decoration: none; } button, input, textarea, select { font: inherit; }
+    .app { display: grid; grid-template-columns: 248px minmax(0,1fr); min-height: 100vh; }
+    .rail { position: sticky; top: 0; height: 100vh; padding: 18px 14px; border-right: 1px solid var(--border); background: oklch(11% 0.016 250 / .96); }
+    .brand { display:flex; gap:10px; align-items:center; padding:8px 8px 18px; border-bottom:1px solid var(--border); }
+    .mark { width:32px; height:32px; display:grid; place-items:center; border:1px solid var(--border); background:var(--surface); color:var(--accent); font:600 15px/1 var(--font-mono); }
+    .brand h1 { margin:0; font-size:18px; line-height:1.1; } .brand p, .side-note { margin:3px 0 0; color:var(--muted); font-size:12px; line-height:1.45; }
+    .nav { display:grid; gap:6px; margin-top:18px; } .nav a { display:flex; justify-content:space-between; align-items:center; min-height:38px; padding:0 10px; border:1px solid transparent; border-radius:6px; color:var(--muted); }
+    .nav a.active { color:var(--fg); border-color:var(--border); background:var(--surface); }
+    .ticker-stack { margin-top:18px; padding-top:16px; border-top:1px solid var(--border); } .kicker { color:var(--dim); font:600 11px/1 var(--font-mono); letter-spacing:.08em; text-transform:uppercase; }
+    main { padding:18px; min-width:0; } .topbar { display:flex; justify-content:space-between; gap:16px; align-items:end; margin-bottom:14px; }
+    h2 { margin:0; font-size:clamp(26px,3vw,40px); line-height:1.05; letter-spacing:-.02em; } .lead { margin:6px 0 0; max-width:78ch; color:var(--muted); font-size:14px; line-height:1.5; }
+    .btn { min-height:36px; padding:0 12px; border:1px solid var(--border); border-radius:6px; background:var(--surface); color:var(--fg); cursor:pointer; font-weight:550; }
+    .grid { display:grid; grid-template-columns: minmax(0,1fr) 360px; gap:14px; align-items:start; }
+    .panel { border:1px solid var(--border); background:oklch(16% 0.017 250 / .94); border-radius:8px; overflow:hidden; }
+    .panel-head { min-height:46px; padding:12px 14px; display:flex; justify-content:space-between; align-items:center; gap:12px; border-bottom:1px solid var(--border); }
+    .panel-head h3 { margin:0; font-size:15px; line-height:1.1; } .panel-body { padding:14px; }
+    .regime { display:grid; grid-template-columns: repeat(4,1fr); gap:10px; margin-bottom:14px; }
+    .stat { padding:14px; border:1px solid var(--border); border-radius:8px; background:linear-gradient(180deg,var(--surface),oklch(15% 0.016 250)); }
+    .stat label { color:var(--dim); font:600 11px/1 var(--font-mono); letter-spacing:.08em; text-transform:uppercase; }
+    .stat strong { display:block; margin-top:9px; font:650 26px/1 var(--font-mono); } .stat p { margin:9px 0 0; color:var(--muted); font-size:12px; line-height:1.35; }
+    table { width:100%; border-collapse:collapse; font-size:13px; } th,td { padding:10px 8px; border-bottom:1px solid var(--border); text-align:left; vertical-align:middle; } th { color:var(--dim); font:600 11px/1 var(--font-mono); letter-spacing:.08em; text-transform:uppercase; }
+    input, textarea { width:100%; min-height:32px; border:1px solid var(--border); border-radius:5px; background:var(--surface); color:var(--fg); padding:7px 8px; }
+    textarea { min-height:160px; resize:vertical; line-height:1.45; } .num { font-family:var(--font-mono); font-variant-numeric:tabular-nums; }
+    .pill { display:inline-flex; align-items:center; gap:7px; min-height:24px; padding:0 8px; border:1px solid var(--border); border-radius:999px; background:var(--surface-2); color:var(--muted); font:12px/1 var(--font-mono); white-space:nowrap; }
+    .pill.good { color:var(--success); } .pill.warn { color:var(--warn); } .pill.bad { color:var(--danger); }
+    .bar { height:8px; border-radius:999px; background:var(--surface-2); overflow:hidden; min-width:130px; } .bar span { display:block; height:100%; background:var(--accent); }
+    .source { color:var(--accent); } .stack { display:grid; gap:14px; } .note { color:var(--muted); font-size:12px; line-height:1.45; margin:0; }
+    @media (max-width: 1050px) { .app,.grid { grid-template-columns:1fr; } .rail { position:static; height:auto; } .regime { grid-template-columns:repeat(2,1fr); } }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="rail">
+      <div class="brand"><div class="mark">CX</div><div><h1>Codex</h1><p>Portfolio decision engine</p></div></div>
+      <nav class="nav" aria-label="Primary">
+        <a href="index.html">Command Center <span>01</span></a><a class="active" href="macro.html">Macro Regime <span>02</span></a><a href="screener.html">Screener <span>03</span></a><a href="watchlists.html">Watchlists <span>04</span></a><a href="ticker-detail.html">Ticker Detail <span>05</span></a><a href="trades.html">Trade Ideas <span>06</span></a><a href="positions.html">Positions <span>07</span></a><a href="alerts.html">Alerts <span>08</span></a>
+      </nav>
+      <div class="ticker-stack"><div class="kicker">Macro job</div><p class="side-note">Manual monthly stress monitor. Credit and leverage deterioration size the equity playbook.</p></div>
+    </aside>
+    <main>
+      <header class="topbar">
+        <div><h2>Macro Regime</h2><p class="lead">Pre-pullback dashboard for divergence: credit or leverage stress worsening while equity valuation remains elevated. All fields are editable and saved locally.</p></div>
+        <button class="btn" id="reset">Reset seeds</button>
+      </header>
+      <section class="regime">
+        <div class="stat"><label>Risk regime</label><strong id="regime">BUILDING</strong><p id="summary">Credit is calm but valuation is stretched.</p></div>
+        <div class="stat"><label>Divergence trigger</label><strong id="divergence">NO</strong><p>HY/CCC amber-red plus Buffett Indicator red.</p></div>
+        <div class="stat"><label>Amber / red</label><strong class="num" id="counts">0 / 0</strong><p>Composite uses editable thresholds below.</p></div>
+        <div class="stat"><label>Last updated</label><input id="lastUpdated" type="date"></div>
+      </section>
+      <section class="grid">
+        <div class="panel">
+          <div class="panel-head"><h3>Regime Metrics</h3><span class="pill">manual values</span></div>
+          <div class="panel-body">
+            <table>
+              <thead><tr><th>Metric</th><th>Value</th><th>Status</th><th>Stress bar</th><th>Source</th></tr></thead>
+              <tbody id="rows"></tbody>
+            </table>
+          </div>
+        </div>
+        <aside class="stack">
+          <section class="panel"><div class="panel-head"><h3>Interpretation</h3><span class="pill" id="tone">watch</span></div><div class="panel-body"><p class="note" id="interpretation"></p></div></section>
+          <section class="panel"><div class="panel-head"><h3>Monthly Notes</h3><span class="pill">persisted</span></div><div class="panel-body"><textarea id="notes"></textarea></div></section>
+        </aside>
+      </section>
+    </main>
+  </div>
+  <script>
+    const STORE = "codex-macro-v1";
+    const seed = {
+      lastUpdated: "2026-06-15",
+      notes: "Tune thresholds as the process matures. Low VIX means hedges may be affordable; it is not proof of safety.",
+      metrics: [
+        { id:"hy", group:"Credit", name:"High-yield OAS", value:2.78, unit:"%", source:"FRED BAMLH0A0HYM2", url:"https://fred.stlouisfed.org/series/BAMLH0A0HYM2", amber:3.5, red:5, direction:"bad-high" },
+        { id:"ccc", group:"Credit", name:"CCC OAS", value:7, unit:"%", source:"FRED BAMLH0A3HYC", url:"https://fred.stlouisfed.org/series/BAMLH0A3HYC", amber:9, red:13, direction:"bad-high" },
+        { id:"ig", group:"Credit", name:"IG OAS", value:0.8, unit:"%", source:"FRED BAMLC0A0CM", url:"https://fred.stlouisfed.org/series/BAMLC0A0CM", amber:1.4, red:2, direction:"bad-high" },
+        { id:"vix", group:"Vol", name:"VIX", value:16.4, unit:"", source:"CBOE / FRED VIXCLS", url:"https://fred.stlouisfed.org/series/VIXCLS", amber:22, red:30, direction:"bad-high" },
+        { id:"auto", group:"Consumer", name:"Subprime auto 60+ DPD", value:6.65, unit:"%", source:"Fitch / Philadelphia Fed", url:"https://www.philadelphiafed.org/", amber:5, red:6.5, direction:"bad-high" },
+        { id:"cards", group:"Consumer", name:"Small-bank card delinquency", value:6.4, unit:"%", source:"FRED DRCCLOBS", url:"https://fred.stlouisfed.org/series/DRCCLOBS", amber:6, red:8, direction:"bad-high" },
+        { id:"m7", group:"Internals", name:"Magnificent 7 S&P weight", value:34, unit:"%", source:"S&P / StockAnalysis", url:"https://stockanalysis.com/", amber:30, red:37, direction:"bad-high" },
+        { id:"breadth", group:"Internals", name:"S&P above 200-day", value:55, unit:"%", source:"Market breadth", url:"https://www.barchart.com/stocks/quotes/$S5TH/overview", amber:60, red:40, direction:"bad-low" },
+        { id:"buffett", group:"Valuation", name:"Buffett Indicator", value:233, unit:"%", source:"Current Market Valuation", url:"https://www.currentmarketvaluation.com/models/buffett-indicator.php", amber:150, red:200, direction:"bad-high" },
+        { id:"gates", group:"Private credit", name:"BDC redemption gates", value:3, unit:"", source:"News / SEC filings", url:"https://www.sec.gov/edgar/search/", amber:1, red:3, direction:"bad-high" }
+      ]
+    };
+    let state = load();
+    function load(){ try { return { ...structuredClone(seed), ...JSON.parse(localStorage.getItem(STORE) || "{}") }; } catch { return structuredClone(seed); } }
+    function save(){ localStorage.setItem(STORE, JSON.stringify(state)); }
+    function status(m){
+      const v = Number(m.value);
+      if (m.direction === "bad-low") return v < m.red ? "bad" : v < m.amber ? "warn" : "good";
+      if (m.id === "vix" && v < 14) return "warn";
+      return v >= m.red ? "bad" : v >= m.amber ? "warn" : "good";
+    }
+    function scorePct(m){
+      const v = Number(m.value);
+      if (m.direction === "bad-low") return Math.max(0, Math.min(100, (m.amber - v) / Math.max(1, m.amber - m.red) * 100));
+      return Math.max(0, Math.min(100, v / Math.max(1, m.red) * 100));
+    }
+    function render(){
+      document.getElementById("lastUpdated").value = state.lastUpdated;
+      document.getElementById("notes").value = state.notes;
+      const rows = document.getElementById("rows");
+      rows.innerHTML = state.metrics.map((m,i) => `<tr>
+        <td><strong>${m.name}</strong><br><span class="kicker">${m.group}</span></td>
+        <td><input class="num" data-i="${i}" value="${m.value}" aria-label="${m.name} value"></td>
+        <td><span class="pill ${status(m)}">${status(m).toUpperCase()}</span></td>
+        <td><div class="bar"><span style="width:${scorePct(m)}%; background:var(--${status(m) === "bad" ? "danger" : status(m) === "warn" ? "warn" : "success"})"></span></div></td>
+        <td><a class="source" href="${m.url}" target="_blank" rel="noreferrer">${m.source}</a></td>
+      </tr>`).join("");
+      const statuses = state.metrics.map(status);
+      const amber = statuses.filter(s => s === "warn").length;
+      const red = statuses.filter(s => s === "bad").length;
+      const hyBad = ["warn","bad"].includes(status(state.metrics.find(m => m.id === "hy")));
+      const cccBad = ["warn","bad"].includes(status(state.metrics.find(m => m.id === "ccc")));
+      const buffettRed = status(state.metrics.find(m => m.id === "buffett")) === "bad";
+      const div = (hyBad || cccBad) && buffettRed;
+      document.getElementById("counts").textContent = `${amber} / ${red}`;
+      document.getElementById("divergence").textContent = div ? "YES" : "NO";
+      const regime = red >= 3 ? "STRESS" : red || amber >= 4 ? "ELEVATED" : amber >= 2 ? "BUILDING" : "CALM";
+      document.getElementById("regime").textContent = regime;
+      document.getElementById("summary").textContent = div ? "Credit widening while valuation remains red: treat this as the headline pullback watch." : "No full divergence trigger yet; keep watching credit and consumer stress.";
+      document.getElementById("interpretation").textContent = `${regime}: ${red} red and ${amber} amber metrics. Use this page to size exposure before single-name entry work.`;
+      rows.querySelectorAll("input").forEach(input => input.addEventListener("input", e => { state.metrics[e.target.dataset.i].value = Number(e.target.value); save(); render(); }));
+    }
+    document.getElementById("lastUpdated").addEventListener("input", e => { state.lastUpdated = e.target.value; save(); });
+    document.getElementById("notes").addEventListener("input", e => { state.notes = e.target.value; save(); });
+    document.getElementById("reset").addEventListener("click", () => { localStorage.removeItem(STORE); state = load(); render(); });
+    render();
+  </script>
+</body>
+</html>

@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Large Chart Workspace</title>
+  <style>
+    :root {
+      --bg: oklch(98% 0.004 250);
+      --surface: oklch(100% 0 0);
+      --surface-2: oklch(96% 0.004 250);
+      --fg: oklch(20% 0.012 250);
+      --muted: oklch(43% 0.014 250);
+      --dim: oklch(55% 0.012 250);
+      --border: oklch(86% 0.008 250);
+      --grid: oklch(89% 0.007 250);
+      --accent: oklch(55% 0.18 255);
+      --success: oklch(63% 0.15 150);
+      --warn: oklch(61% 0.16 70);
+      --danger: oklch(56% 0.19 28);
+      --band: oklch(78% 0.004 250);
+      --font-display: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", system-ui, sans-serif;
+      --font-body: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", system-ui, sans-serif;
+      --font-mono: "JetBrains Mono", "IBM Plex Mono", ui-monospace, Menlo, monospace;
+    }
+    * { box-sizing: border-box; }
+    html { background: var(--bg); color: var(--fg); color-scheme: light; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font-body);
+      background: var(--bg);
+    }
+    button, input { font: inherit; }
+    a { color: inherit; text-decoration: none; }
+    .shell {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 14px;
+      padding: 18px;
+      min-height: 100vh;
+    }
+    .topbar {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 16px;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow: 0 18px 38px oklch(20% 0.012 250 / .08);
+    }
+    .kicker {
+      color: var(--dim);
+      font: 600 11px/1 var(--font-mono);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 8px 0 0;
+      font: 600 clamp(30px, 5vw, 58px)/.98 var(--font-display);
+      letter-spacing: -0.03em;
+    }
+    .summary {
+      margin: 8px 0 0;
+      color: var(--muted);
+      max-width: 86ch;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .btn {
+      min-height: 38px;
+      padding: 0 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface);
+      color: var(--fg);
+      cursor: pointer;
+      font-weight: 550;
+      letter-spacing: .02em;
+    }
+    .btn.primary { background: var(--accent); color: white; border-color: transparent; }
+    .main, .side { display: grid; gap: 14px; align-content: start; min-width: 0; }
+    .panel {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow: 0 10px 28px oklch(20% 0.012 250 / .06);
+      overflow: hidden;
+    }
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .panel-head h2, .panel-head h3 {
+      margin: 0;
+      font: 600 15px/1.1 var(--font-display);
+      letter-spacing: -0.01em;
+    }
+    .panel-body { padding: 14px; }
+    .chart-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    svg { display: block; width: 100%; height: auto; }
+    .control-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 32px;
+      padding: 0 9px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface);
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 12px;
+    }
+    input { accent-color: var(--accent); }
+    .study-stack {
+      display: grid;
+      gap: 10px;
+    }
+    .study-chart { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+    .metric-row {
+      display: grid;
+      grid-template-columns: 94px 1fr auto;
+      gap: 8px;
+      align-items: center;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+    }
+    .metric-row:last-child { border-bottom: 0; }
+    .track { height: 8px; background: var(--surface-2); border-radius: 999px; overflow: hidden; }
+    .track span { display: block; height: 100%; border-radius: inherit; background: var(--accent); }
+    .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 24px;
+      padding: 0 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--muted);
+      background: var(--surface-2);
+      font: 12px/1 var(--font-mono);
+      white-space: nowrap;
+    }
+    .pill.good { color: var(--success); }
+    .pill.warn { color: var(--warn); }
+    .pill.bad { color: var(--danger); }
+    .feed-list { display: grid; gap: 8px; }
+    .feed-item {
+      display: grid;
+      gap: 6px;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface-2);
+    }
+    .feed-item a { color: var(--fg); font-size: 13px; line-height: 1.35; }
+    .feed-item a:hover { color: var(--accent); }
+    .feed-meta {
+      color: var(--dim);
+      font: 11px/1 var(--font-mono);
+      letter-spacing: .02em;
+    }
+    .ladder { display: grid; gap: 8px; }
+    .note {
+      color: var(--dim);
+      font-size: 12px;
+      line-height: 1.45;
+      margin: 0;
+    }
+    @media (max-width: 1100px) {
+      .shell { grid-template-columns: 1fr; }
+      .topbar { align-items: start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div>
+        <div class="kicker">Large-format technical workspace</div>
+        <h1 id="title">Ticker Chart</h1>
+        <p class="summary" id="thesis"></p>
+      </div>
+      <div class="control-row">
+        <a class="btn" href="index.html">Back to command center</a>
+        <button class="btn primary" type="button" id="copyLink">Copy chart link</button>
+      </div>
+    </header>
+
+    <main class="main">
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Last 2 Calendar Years: Price, Bands, Volume, Events</h2>
+          <div class="control-row" aria-label="Chart overlays">
+            <label class="toggle"><input type="checkbox" data-layer="ma" checked> 200 / 60 / 9 MA</label>
+            <label class="toggle"><input type="checkbox" data-layer="bands" checked> Bollinger Bands</label>
+            <label class="toggle"><input type="checkbox" data-layer="volume" checked> Net volume</label>
+            <label class="toggle"><input type="checkbox" data-layer="events" checked> Earnings / dividends</label>
+            <label class="toggle"><input type="checkbox" data-layer="levels" checked> Side axes</label>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="chart-card">
+            <svg id="priceChart" viewBox="0 0 1180 640" role="img" aria-label="Two-year price chart with moving averages, Bollinger Bands, volume, earnings, and dividends"></svg>
+          </div>
+        </div>
+      </section>
+
+      <section class="study-stack" aria-label="Technical studies">
+        <section class="panel">
+          <div class="panel-head"><h3>MACD (12, 26, 9)</h3><span class="pill" id="macdSignal"></span></div>
+          <div class="panel-body"><div class="study-chart"><svg id="macdChart" viewBox="0 0 1180 170"></svg></div></div>
+        </section>
+        <section class="panel">
+          <div class="panel-head"><h3>RSI (14)</h3><span class="pill" id="rsiSignal"></span></div>
+          <div class="panel-body"><div class="study-chart"><svg id="rsiChart" viewBox="0 0 1180 170"></svg></div></div>
+        </section>
+        <section class="panel">
+          <div class="panel-head"><h3>Momentum (14)</h3><span class="pill" id="momentumSignal"></span></div>
+          <div class="panel-body"><div class="study-chart"><svg id="momentumChart" viewBox="0 0 1180 170"></svg></div></div>
+        </section>
+      </section>
+    </main>
+
+    <aside class="side">
+      <section class="panel">
+        <div class="panel-head"><h3>Decision Levels</h3><span class="pill" id="statePill"></span></div>
+        <div class="panel-body">
+          <div class="ladder" id="ladder"></div>
+          <p class="note">Analyst consensus is shown next to the Truck level so the deep-value line is compared with street expectations, not just the current quote.</p>
+        </div>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><h3>Ticker Feed</h3><span class="pill">manual links</span></div>
+        <div class="panel-body">
+          <div class="feed-list" id="feed"></div>
+        </div>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><h3>Source Map</h3><span class="pill">no live fetch</span></div>
+        <div class="panel-body">
+          <div class="metric-row"><span>Price</span><div class="track"><span style="width:72%"></span></div><strong class="num">ohlcv.adjusted</strong></div>
+          <div class="metric-row"><span>Options</span><div class="track"><span style="width:54%"></span></div><strong class="num">options.chain</strong></div>
+          <div class="metric-row"><span>News</span><div class="track"><span style="width:42%"></span></div><strong class="num">manual.feed</strong></div>
+          <p class="note">This page uses seeded monitor data and your command-center local state. Links open current source pages; the prototype does not fetch live market data.</p>
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  <script>
+    const STORE_KEY = "codex-control-panel-v1";
+    const layers = { ma: true, bands: true, volume: true, events: true, levels: true };
+    const tickers = [
+      { symbol:"GOOGL", name:"Alphabet", state:"Entry-Zone", tier:"A", price:350, fair:360, add:313, truck:270, kill:"OK", confluence:true, thesis:"AI talent churn is monitored, but core ad/search economics remain knowable. Confluence near $312 combines Fib 38.2% and fundamental Add.", gates:["good","good","good","good"], data:[318,326,333,341,356,348,339,331,322,314,327,343,350], rsi:48, analyst:{rating:"Buy", target:395, spread:"+13%"}, news:[["x.com list","AI capex chatter and search share debate remain the high-signal feed items.","https://x.com/search?q=GOOGL%20AI%20capex&src=typed_query"],["SEC filings","Watch 10-Q capex language and TAC trend.","https://www.sec.gov/edgar/search/"],["Analyst notes","Consensus target revision feed for ad/search checks.","https://www.nasdaq.com/market-activity/stocks/googl/analyst-research"]] },
+      { symbol:"META", name:"Meta", state:"Watchlist", tier:"A", price:610, fair:620, add:540, truck:450, kill:"OK", confluence:false, thesis:"Quality compounder still above preferred Add zone; wait for pullback or support confirmation.", gates:["good","good","good","good"], data:[520,542,558,580,604,625,641,636,622,610,604,612,610], rsi:55, analyst:{rating:"Buy", target:690, spread:"+13%"}, news:[["x.com list","Track Reels monetization, AI infra spend, and Reality Labs burn.","https://x.com/search?q=META%20earnings%20AI&src=typed_query"],["NASDAQ","Consensus and estimate revision board.","https://www.nasdaq.com/market-activity/stocks/meta/analyst-research"],["SEC filings","Quarterly capex and buyback cadence.","https://www.sec.gov/edgar/search/"]] },
+      { symbol:"MSFT", name:"Microsoft", state:"Knife warning", tier:"A", price:367, fair:410, add:340, truck:295, kill:"Armed", confluence:false, thesis:"Below falling 200-day; no technical analysis until support stabilizes.", gates:["good","good","warn","good"], data:[430,424,410,398,386,379,371,365,359,362,366,370,367], rsi:39, analyst:{rating:"Buy", target:455, spread:"+24%"}, news:[["x.com list","Azure growth and AI margin debate.","https://x.com/search?q=MSFT%20Azure%20AI%20margin&src=typed_query"],["NASDAQ","Analyst consensus and target drift.","https://www.nasdaq.com/market-activity/stocks/msft/analyst-research"],["SEC filings","Cloud segment and capex commentary.","https://www.sec.gov/edgar/search/"]] },
+      { symbol:"AAPL", name:"Apple", state:"Needs pullback", tier:"B", price:297, fair:235, add:228, truck:196, kill:"OK", confluence:false, thesis:"Price-implied belief is demanding for single-digit growth; valuation gate remains caution.", gates:["good","good","warn","good"], data:[238,244,251,260,271,282,291,305,314,309,302,298,297], rsi:61, analyst:{rating:"Hold", target:240, spread:"-19%"}, news:[["x.com list","iPhone cycle, services growth, and China demand checks.","https://x.com/search?q=AAPL%20iPhone%20China%20demand&src=typed_query"],["NASDAQ","Consensus target versus current price.","https://www.nasdaq.com/market-activity/stocks/aapl/analyst-research"],["SEC filings","Services margin and buyback pace.","https://www.sec.gov/edgar/search/"]] },
+      { symbol:"NVDA", name:"Nvidia", state:"Drift", tier:"C", price:209, fair:160, add:145, truck:120, kill:"Review", confluence:false, thesis:"Forward P/E depends on peak-cyclical earnings basis; haircut mode pushes entry into $120-150.", gates:["good","warn","bad","warn"], data:[142,155,171,188,204,224,238,229,217,211,205,212,209], rsi:67, analyst:{rating:"Buy", target:190, spread:"-9%"}, news:[["x.com list","AI accelerator demand, order pull-forward, and hyperscaler capex.","https://x.com/search?q=NVDA%20hyperscaler%20capex&src=typed_query"],["NASDAQ","Consensus and estimate revisions.","https://www.nasdaq.com/market-activity/stocks/nvda/analyst-research"],["SEC filings","Customer concentration and supply commentary.","https://www.sec.gov/edgar/search/"]] },
+      { symbol:"EPD", name:"Enterprise Products", state:"Owned", tier:"A", price:31, fair:34, add:29, truck:26, kill:"OK", confluence:true, thesis:"In-circle income holding with healthy coverage and roughly 6% yield.", gates:["good","good","good","good"], data:[26,27,28,29,30,31,32,31,30,30,31,31,31], rsi:52, analyst:{rating:"Buy", target:36, spread:"+16%"}, news:[["x.com list","Midstream spreads, distribution coverage, and NGL volumes.","https://x.com/search?q=EPD%20distribution%20coverage&src=typed_query"],["NASDAQ","Analyst consensus target.","https://www.nasdaq.com/market-activity/stocks/epd/analyst-research"],["SEC filings","Coverage and leverage updates.","https://www.sec.gov/edgar/search/"]] },
+      { symbol:"VNOM", name:"Viper Energy", state:"Owned", tier:"A", price:48, fair:52, add:43, truck:38, kill:"OK", confluence:false, thesis:"Royalty exposure remains in-circle; watch commodity sensitivity and payout coverage.", gates:["good","good","good","good"], data:[38,40,43,45,47,49,51,50,49,47,46,48,48], rsi:50, analyst:{rating:"Buy", target:55, spread:"+15%"}, news:[["x.com list","Permian royalty volumes and commodity sensitivity.","https://x.com/search?q=VNOM%20royalty%20Permian&src=typed_query"],["NASDAQ","Consensus and target drift.","https://www.nasdaq.com/market-activity/stocks/vnom/analyst-research"],["SEC filings","Payout and production updates.","https://www.sec.gov/edgar/search/"]] },
+      { symbol:"TSLA", name:"Tesla", state:"Rejected", tier:"D", price:330, fair:120, add:0, truck:0, kill:"Too hard", confluence:false, thesis:"Too-hard flag; price-implied belief remains heroic. Technical entry disabled while rejected.", gates:["bad","warn","bad","bad"], data:[260,275,292,318,346,372,355,338,321,312,326,334,330], rsi:58, analyst:{rating:"Hold", target:260, spread:"-21%"}, news:[["x.com list","Delivery revisions, FSD claims, and margin debate.","https://x.com/search?q=TSLA%20deliveries%20margin&src=typed_query"],["NASDAQ","Consensus target and revisions.","https://www.nasdaq.com/market-activity/stocks/tsla/analyst-research"],["SEC filings","Auto gross margin and financing exposure.","https://www.sec.gov/edgar/search/"]] },
+      { symbol:"ARM", name:"Arm", state:"Rejected", tier:"D", price:160, fair:70, add:0, truck:0, kill:"Too hard", confluence:false, thesis:"Pay-for-perfection valuation and high beta keep it outside the core process.", gates:["warn","warn","bad","bad"], data:[92,104,118,133,151,171,180,176,168,162,156,159,160], rsi:62, analyst:{rating:"Hold", target:120, spread:"-25%"}, news:[["x.com list","Royalty growth, AI licensing, and valuation debate.","https://x.com/search?q=ARM%20royalty%20AI%20valuation&src=typed_query"],["NASDAQ","Consensus target and estimate revisions.","https://www.nasdaq.com/market-activity/stocks/arm/analyst-research"],["SEC filings","Licensing and customer concentration.","https://www.sec.gov/edgar/search/"]] },
+      { symbol:"RDW", name:"Redwire", state:"Spec Sleeve", tier:"S", price:18, fair:0, add:15, truck:12, kill:"Premortem", confluence:false, thesis:"Speculative sleeve only: survival weak-pass, convergence improving, asymmetry documented.", gates:["warn","good","warn","good"], data:[8,9,10,12,15,18,22,20,17,16,18,19,18], rsi:57, analyst:{rating:"Spec", target:22, spread:"+22%"}, news:[["x.com list","Space infrastructure backlog and dilution risk.","https://x.com/search?q=RDW%20backlog%20space&src=typed_query"],["NASDAQ","Thin-coverage consensus snapshot.","https://www.nasdaq.com/market-activity/stocks/rdw/analyst-research"],["SEC filings","Liquidity, backlog, and going-concern language.","https://www.sec.gov/edgar/search/"]] }
+    ];
+
+    function selectedTicker() {
+      const qs = new URLSearchParams(location.search);
+      const saved = readSavedSymbol();
+      const symbol = (qs.get("symbol") || saved || "GOOGL").toUpperCase();
+      return tickers.find(t => t.symbol === symbol) || tickers[0];
+    }
+    function readSavedSymbol() {
+      try { return JSON.parse(localStorage.getItem(STORE_KEY) || "{}").selected; }
+      catch (_) { return ""; }
+    }
+    function classForState(t) { return t.gates.includes("bad") ? "bad" : t.gates.includes("warn") ? "warn" : "good"; }
+    function pct(value, min, max) { return (value - min) / Math.max(1, max - min); }
+    function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
+    function fmtDate(date) {
+      return date.toLocaleDateString("en-US", { month: "short", year: "2-digit" });
+    }
+    function lastTradingDates(count) {
+      const dates = [];
+      const d = new Date();
+      d.setHours(12, 0, 0, 0);
+      while (dates.length < count) {
+        const day = d.getDay();
+        if (day !== 0 && day !== 6) dates.unshift(new Date(d));
+        d.setDate(d.getDate() - 1);
+      }
+      return dates;
+    }
+    function generateSeries(t) {
+      const count = 504;
+      const dates = lastTradingDates(count);
+      const anchors = t.data;
+      return dates.map((date, i) => {
+        const pos = i / (count - 1) * (anchors.length - 1);
+        const left = Math.floor(pos);
+        const right = Math.min(anchors.length - 1, left + 1);
+        const mix = pos - left;
+        const base = anchors[left] + (anchors[right] - anchors[left]) * mix;
+        const wave = Math.sin(i * 0.11 + t.symbol.length) * base * 0.018 + Math.sin(i * 0.027 + t.price) * base * 0.026;
+        const close = Math.max(1, base + wave);
+        const prev = i ? anchors[Math.max(0, Math.floor((i - 1) / (count - 1) * (anchors.length - 1)))] : close;
+        const signedChange = close - prev;
+        const volume = Math.max(0.1, (0.72 + Math.abs(signedChange / close) * 18 + Math.abs(Math.sin(i * 0.07)) * 0.32) * (t.price > 250 ? 18 : 7));
+        let event = "";
+        if (i > 30 && i % 63 === 42) event = "E";
+        if (t.tier !== "D" && i > 45 && i % 63 === 18) event = "D";
+        return { date, close, volume, event };
+      });
+    }
+    function sma(values, span) {
+      return values.map((_, i) => {
+        if (i < span - 1) return null;
+        const slice = values.slice(i - span + 1, i + 1);
+        return slice.reduce((a, b) => a + b, 0) / span;
+      });
+    }
+    function ema(values, span) {
+      const k = 2 / (span + 1);
+      let prior = values[0] || 0;
+      return values.map((v, i) => {
+        prior = i === 0 ? v : v * k + prior * (1 - k);
+        return prior;
+      });
+    }
+    function bollinger(values, span = 20, mult = 2) {
+      return values.map((_, i) => {
+        if (i < span - 1) return { mid: null, upper: null, lower: null };
+        const slice = values.slice(i - span + 1, i + 1);
+        const mid = slice.reduce((a, b) => a + b, 0) / span;
+        const variance = slice.reduce((a, b) => a + Math.pow(b - mid, 2), 0) / span;
+        const sd = Math.sqrt(variance);
+        return { mid, upper: mid + sd * mult, lower: mid - sd * mult };
+      });
+    }
+    function macd(values) {
+      const fast = ema(values, 12);
+      const slow = ema(values, 26);
+      const line = values.map((_, i) => fast[i] - slow[i]);
+      const signal = ema(line, 9);
+      const hist = line.map((v, i) => v - signal[i]);
+      return { line, signal, hist };
+    }
+    function rsi(values, span = 14) {
+      let avgGain = 0;
+      let avgLoss = 0;
+      return values.map((v, i) => {
+        if (i === 0) return 50;
+        const change = v - values[i - 1];
+        const gain = Math.max(0, change);
+        const loss = Math.max(0, -change);
+        if (i <= span) {
+          avgGain += gain / span;
+          avgLoss += loss / span;
+          return 50;
+        }
+        avgGain = (avgGain * (span - 1) + gain) / span;
+        avgLoss = (avgLoss * (span - 1) + loss) / span;
+        const rs = avgLoss === 0 ? 100 : avgGain / avgLoss;
+        return 100 - (100 / (1 + rs));
+      });
+    }
+    function momentum(values, span = 14) {
+      return values.map((v, i) => i < span ? 0 : v - values[i - span]);
+    }
+    function xAt(i, total, pad, w) {
+      return pad.l + (i / Math.max(1, total - 1)) * (w - pad.l - pad.r);
+    }
+    function yAt(v, min, max, pad, bottom) {
+      return pad.t + (max - v) / Math.max(0.0001, max - min) * (bottom - pad.t);
+    }
+    function linePath(values, w, bottom, pad, min, max) {
+      let open = false;
+      return values.map((v, i) => {
+        if (v == null || Number.isNaN(v)) { open = false; return ""; }
+        const cmd = open ? "L" : "M";
+        open = true;
+        return `${cmd}${xAt(i, values.length, pad, w).toFixed(1)},${yAt(v, min, max, pad, bottom).toFixed(1)}`;
+      }).join(" ");
+    }
+    function bandPath(bands, w, bottom, pad, min, max) {
+      const points = bands.map((b, i) => b.upper == null ? null : [xAt(i, bands.length, pad, w), yAt(b.upper, min, max, pad, bottom), yAt(b.lower, min, max, pad, bottom)]).filter(Boolean);
+      if (!points.length) return "";
+      const upper = points.map(p => `${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(" L");
+      const lower = points.slice().reverse().map(p => `${p[0].toFixed(1)},${p[2].toFixed(1)}`).join(" L");
+      return `M${upper} L${lower} Z`;
+    }
+    function money(value) {
+      if (!value) return "";
+      return value >= 100 ? `$${value.toFixed(0)}` : `$${value.toFixed(2)}`;
+    }
+
+    const ticker = selectedTicker();
+    const technicalSeries = generateSeries(ticker);
+    const closes = technicalSeries.map(d => d.close);
+    document.title = `${ticker.symbol} Large Chart Workspace`;
+    document.getElementById("title").textContent = `${ticker.symbol} ${ticker.name}`;
+    document.getElementById("thesis").textContent = ticker.thesis;
+    document.getElementById("statePill").textContent = ticker.state;
+    document.getElementById("statePill").className = `pill ${classForState(ticker)}`;
+
+    function render() {
+      renderPrice();
+      renderStudies();
+      renderLadder();
+      renderFeed();
+    }
+    function renderPrice() {
+      const svg = document.getElementById("priceChart");
+      const w = 1180, h = 640, pad = { l: 126, r: 174, t: 28, b: 38 };
+      const chartBottom = 500;
+      const volumeTop = 518;
+      const vals = closes;
+      const levels = [ticker.price, ticker.fair, ticker.add, ticker.truck, ticker.analyst.target].filter(Boolean);
+      const bands = bollinger(vals);
+      const bandVals = bands.flatMap(b => [b.upper, b.lower]).filter(Boolean);
+      const min = Math.min(...vals, ...levels, ...bandVals) * .96;
+      const max = Math.max(...vals, ...levels, ...bandVals) * 1.04;
+      const line = linePath(vals, w, chartBottom, pad, min, max);
+      const grid = [0,.2,.4,.6,.8,1].map(p => {
+        const y = pad.t + p * (chartBottom - pad.t);
+        const v = max - p * (max - min);
+        return `<line x1="${pad.l}" y1="${y}" x2="${w-pad.r}" y2="${y}" stroke="var(--grid)"/><text x="${pad.l - 12}" y="${y+4}" fill="var(--dim)" font-size="12" font-family="var(--font-mono)" text-anchor="end">$${v.toFixed(0)}</text>`;
+      }).join("");
+      const maRows = layers.ma ? [
+        [200, "var(--dim)", "6 7"],
+        [60, "var(--danger)", ""],
+        [9, "var(--fg)", ""]
+      ].map(([span, color, dash]) => `<path fill="none" stroke="${color}" stroke-width="${span === 9 ? "1.6" : "2"}" stroke-dasharray="${dash}" d="${linePath(sma(vals, span), w, chartBottom, pad, min, max)}"/>`).join("") : "";
+      const bandRows = layers.bands ? `<path d="${bandPath(bands, w, chartBottom, pad, min, max)}" fill="var(--band)" opacity=".7"/><path fill="none" stroke="var(--fg)" stroke-opacity=".74" stroke-width="1.2" d="${linePath(bands.map(b => b.upper), w, chartBottom, pad, min, max)}"/><path fill="none" stroke="var(--fg)" stroke-opacity=".74" stroke-width="1.2" d="${linePath(bands.map(b => b.lower), w, chartBottom, pad, min, max)}"/>` : "";
+      const maxVol = Math.max(...technicalSeries.map(d => d.volume));
+      const volumeBars = layers.volume ? technicalSeries.map((d, i) => {
+        const x = xAt(i, technicalSeries.length, pad, w);
+        const bw = Math.max(1, (w - pad.l - pad.r) / technicalSeries.length * .75);
+        const barH = (d.volume / maxVol) * 82;
+        const up = i === 0 || d.close >= technicalSeries[i - 1].close;
+        return `<rect x="${(x - bw / 2).toFixed(1)}" y="${(volumeTop + 86 - barH).toFixed(1)}" width="${bw.toFixed(1)}" height="${barH.toFixed(1)}" fill="${up ? "var(--success)" : "var(--danger)"}" opacity=".58"/>`;
+      }).join("") : "";
+      const plotRight = w - pad.r;
+      const axisRows = layers.levels ? (() => {
+        const targetRows = [
+          ["Current", ticker.price, "var(--fg)"],
+          ["Fair", ticker.fair, "var(--muted)"],
+          ["Add", ticker.add, "var(--success)"],
+          ["Truck", ticker.truck, "var(--danger)"],
+          ["Analyst", ticker.analyst.target, "var(--accent)"]
+        ].filter(([,v]) => v);
+        const targetTicks = targetRows.map(([label, v, color]) => {
+          const y = yAt(v, min, max, pad, chartBottom);
+          return `
+            <line x1="${pad.l - 7}" x2="${pad.l}" y1="${y}" y2="${y}" stroke="${color}" stroke-width="2"/>
+            <line x1="${plotRight}" x2="${plotRight + 7}" y1="${y}" y2="${y}" stroke="${color}" stroke-width="2"/>
+            <text x="${pad.l - 12}" y="${y - 6}" fill="${color}" font-size="11" font-family="var(--font-mono)" text-anchor="end">${label}</text>
+            <text x="${pad.l - 12}" y="${y + 8}" fill="${color}" font-size="11" font-family="var(--font-mono)" text-anchor="end">${money(v)}</text>
+            <text x="${plotRight + 11}" y="${y - 6}" fill="${color}" font-size="11" font-family="var(--font-mono)">${label}</text>
+            <text x="${plotRight + 11}" y="${y + 8}" fill="${color}" font-size="11" font-family="var(--font-mono)">${money(v)}</text>
+          `;
+        }).join("");
+        const high = Math.max(...vals);
+        const low = Math.min(...vals);
+        const fibTicks = [0, .236, .382, .5, .618, .786, 1].map(ratio => {
+          const value = high - (high - low) * ratio;
+          const y = yAt(value, min, max, pad, chartBottom);
+          const label = ratio === 0 ? "0" : ratio === 1 ? "100" : (ratio * 100).toFixed(1);
+          return `
+            <line x1="${plotRight + 78}" x2="${plotRight + 86}" y1="${y}" y2="${y}" stroke="var(--muted)" stroke-width="1.4"/>
+            <text x="${plotRight + 91}" y="${y + 4}" fill="var(--muted)" font-size="10" font-family="var(--font-mono)">${money(value)} Fib ${label}%</text>
+          `;
+        }).join("");
+        return `
+          <line x1="${pad.l}" x2="${pad.l}" y1="${pad.t}" y2="${chartBottom}" stroke="var(--border)"/>
+          <line x1="${plotRight}" x2="${plotRight}" y1="${pad.t}" y2="${chartBottom}" stroke="var(--border)"/>
+          <line x1="${plotRight + 86}" x2="${plotRight + 86}" y1="${pad.t}" y2="${chartBottom}" stroke="var(--border)"/>
+          <text x="${pad.l - 12}" y="${pad.t - 9}" fill="var(--dim)" font-size="10" font-family="var(--font-mono)" text-anchor="end">TARGETS</text>
+          <text x="${plotRight + 11}" y="${pad.t - 9}" fill="var(--dim)" font-size="10" font-family="var(--font-mono)">TARGETS</text>
+          <text x="${plotRight + 91}" y="${pad.t - 9}" fill="var(--dim)" font-size="10" font-family="var(--font-mono)">FIB %</text>
+          ${targetTicks}${fibTicks}
+        `;
+      })() : "";
+      const events = layers.events ? technicalSeries.map((d, i) => {
+        if (!d.event) return "";
+        const x = xAt(i, technicalSeries.length, pad, w);
+        const y = yAt(d.close, min, max, pad, chartBottom);
+        const fill = d.event === "E" ? "var(--warn)" : "var(--success)";
+        return `<circle cx="${x.toFixed(1)}" cy="${(y - 12).toFixed(1)}" r="6" fill="${fill}" stroke="var(--surface)" stroke-width="2"/><text x="${x.toFixed(1)}" y="${(y - 8).toFixed(1)}" text-anchor="middle" fill="var(--surface)" font-size="8" font-family="var(--font-mono)" font-weight="700">${d.event}</text>`;
+      }).join("") : "";
+      const monthMarks = [0, 126, 252, 378, 503].map(i => {
+        const x = xAt(i, technicalSeries.length, pad, w);
+        return `<text x="${x}" y="${h-13}" fill="var(--dim)" font-size="11" font-family="var(--font-mono)" text-anchor="${i === 0 ? "start" : i === 503 ? "end" : "middle"}">${fmtDate(technicalSeries[i].date)}</text>`;
+      }).join("");
+      const legend = `<text x="${pad.l}" y="22" fill="var(--muted)" font-size="12" font-family="var(--font-mono)">line: close · MA 200 grey / MA 60 red / MA 9 black · BB 20,2 · targets on axes · Fib % right axis</text>`;
+      const lastX = xAt(vals.length - 1, vals.length, pad, w);
+      const lastY = yAt(vals.at(-1), min, max, pad, chartBottom);
+      svg.innerHTML = `<rect width="${w}" height="${h}" fill="var(--surface)"/>${grid}<line x1="${pad.l}" x2="${w-pad.r}" y1="${volumeTop}" y2="${volumeTop}" stroke="var(--grid)"/>${volumeBars}${bandRows}${maRows}<path fill="none" stroke="var(--accent)" stroke-width="2.2" d="${line}"/><circle cx="${lastX}" cy="${lastY}" r="5.5" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/>${events}${axisRows}${legend}${monthMarks}<text x="${pad.l}" y="${h-31}" fill="var(--dim)" font-size="12" font-family="var(--font-mono)">Default view is the last two calendar years. Seeded prototype data; replace with mapped OHLCV source when connected.</text>`;
+    }
+    function renderLineStudy(id, values, color, min, max, guides = []) {
+      const w = 1180, h = 170, pad = { l: 66, r: 36, t: 16, b: 28 };
+      const guideRows = guides.map(([value, label]) => {
+        const y = yAt(value, min, max, pad, h - pad.b);
+        return `<line x1="${pad.l}" x2="${w-pad.r}" y1="${y}" y2="${y}" stroke="var(--grid)"/><text x="18" y="${y+4}" fill="var(--dim)" font-size="11" font-family="var(--font-mono)">${label}</text>`;
+      }).join("");
+      document.getElementById(id).innerHTML = `<rect width="${w}" height="${h}" fill="var(--surface)"/>${guideRows}<path fill="none" stroke="${color}" stroke-width="2" d="${linePath(values, w, h - pad.b, pad, min, max)}"/>`;
+    }
+    function renderMacdStudy(data) {
+      const w = 1180, h = 170, pad = { l: 66, r: 36, t: 16, b: 28 };
+      const all = [...data.line, ...data.signal, ...data.hist];
+      const min = Math.min(0, ...all) * 1.18;
+      const max = Math.max(0, ...all) * 1.18;
+      const zeroY = yAt(0, min, max, pad, h - pad.b);
+      const histBars = data.hist.map((v, i) => {
+        const x = xAt(i, data.hist.length, pad, w);
+        const bw = Math.max(1, (w - pad.l - pad.r) / data.hist.length * .8);
+        const y = yAt(v, min, max, pad, h - pad.b);
+        return `<rect x="${(x - bw / 2).toFixed(1)}" y="${Math.min(y, zeroY).toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.abs(zeroY - y).toFixed(1)}" fill="${v >= 0 ? "var(--success)" : "var(--danger)"}" opacity=".42"/>`;
+      }).join("");
+      document.getElementById("macdChart").innerHTML = `<rect width="${w}" height="${h}" fill="var(--surface)"/><line x1="${pad.l}" x2="${w-pad.r}" y1="${zeroY}" y2="${zeroY}" stroke="var(--grid)"/>${histBars}<path fill="none" stroke="var(--fg)" stroke-width="2" d="${linePath(data.line, w, h - pad.b, pad, min, max)}"/><path fill="none" stroke="var(--danger)" stroke-width="2" d="${linePath(data.signal, w, h - pad.b, pad, min, max)}"/><text x="${pad.l}" y="${h-10}" fill="var(--dim)" font-size="11" font-family="var(--font-mono)">MACD line vs signal, histogram centered on zero</text>`;
+    }
+    function renderBarStudy(id, values, min, max) {
+      const w = 1180, h = 170, pad = { l: 66, r: 36, t: 16, b: 28 };
+      const zeroY = yAt(0, min, max, pad, h - pad.b);
+      const bars = values.map((v, i) => {
+        const x = xAt(i, values.length, pad, w);
+        const bw = Math.max(1, (w - pad.l - pad.r) / values.length * .8);
+        const y = yAt(v, min, max, pad, h - pad.b);
+        return `<rect x="${(x - bw / 2).toFixed(1)}" y="${Math.min(y, zeroY).toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.abs(zeroY - y).toFixed(1)}" fill="${v >= 0 ? "var(--success)" : "var(--danger)"}" opacity=".72"/>`;
+      }).join("");
+      document.getElementById(id).innerHTML = `<rect width="${w}" height="${h}" fill="var(--surface)"/><line x1="${pad.l}" x2="${w-pad.r}" y1="${zeroY}" y2="${zeroY}" stroke="var(--grid)"/>${bars}`;
+    }
+    function renderStudies() {
+      const macdData = macd(closes);
+      const rsiData = rsi(closes);
+      const momentumData = momentum(closes);
+      renderMacdStudy(macdData);
+      renderLineStudy("rsiChart", rsiData, "var(--warn)", 0, 100, [[70, "70"], [50, "50"], [30, "30"]]);
+      const momAbs = Math.max(1, ...momentumData.map(v => Math.abs(v)));
+      renderBarStudy("momentumChart", momentumData, -momAbs * 1.1, momAbs * 1.1);
+      const macdNow = macdData.line.at(-1);
+      const signalNow = macdData.signal.at(-1);
+      const rsiNow = rsiData.at(-1);
+      const momNow = momentumData.at(-1);
+      document.getElementById("macdSignal").textContent = macdNow >= signalNow ? "line > signal" : "line < signal";
+      document.getElementById("macdSignal").className = `pill ${macdNow >= signalNow ? "good" : "bad"}`;
+      document.getElementById("rsiSignal").textContent = `RSI ${rsiNow.toFixed(0)}`;
+      document.getElementById("rsiSignal").className = `pill ${rsiNow > 70 ? "bad" : rsiNow < 40 ? "warn" : "good"}`;
+      document.getElementById("momentumSignal").textContent = momNow >= 0 ? "positive" : "negative";
+      document.getElementById("momentumSignal").className = `pill ${momNow >= 0 ? "good" : "warn"}`;
+    }
+    function renderLadder() {
+      const rows = [
+        ["Current", ticker.price, 100],
+        ["Fair", ticker.fair, pct(ticker.fair, 0, Math.max(ticker.price, ticker.fair)) * 100],
+        ["Add", ticker.add, ticker.add ? pct(ticker.add, 0, Math.max(ticker.price, ticker.fair)) * 100 : 0],
+        ["Truck", ticker.truck, ticker.truck ? pct(ticker.truck, 0, Math.max(ticker.price, ticker.fair)) * 100 : 0],
+        ["Analyst", ticker.analyst.target, pct(ticker.analyst.target, 0, Math.max(ticker.price, ticker.analyst.target)) * 100]
+      ];
+      document.getElementById("ladder").innerHTML = rows.map(([label, value, width]) => `
+        <div class="metric-row"><span>${label}</span><div class="track"><span style="width:${Math.max(0, Math.min(100, width))}%"></span></div><strong class="num">${value ? "$" + value : "—"}</strong></div>
+      `).join("") + `<div class="metric-row"><span>Consensus</span><div class="track"><span style="width:66%"></span></div><strong class="num">${ticker.analyst.rating} ${ticker.analyst.spread}</strong></div>`;
+    }
+    function renderFeed() {
+      document.getElementById("feed").innerHTML = ticker.news.map(([source, copy, url]) => `
+        <div class="feed-item"><span class="feed-meta">${source}</span><a href="${url}" target="_blank" rel="noreferrer">${copy}</a></div>
+      `).join("");
+    }
+    document.querySelectorAll("[data-layer]").forEach(input => {
+      input.addEventListener("change", e => {
+        layers[e.target.dataset.layer] = e.target.checked;
+        renderPrice();
+      });
+    });
+    document.getElementById("copyLink").addEventListener("click", async () => {
+      try { await navigator.clipboard.writeText(location.href); } catch (_) {}
+    });
+    render();
+  </script>
+</body>
+</html>

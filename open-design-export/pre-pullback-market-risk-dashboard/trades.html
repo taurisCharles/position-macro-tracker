@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Trade Ideas 06</title>
+  <style>
+    :root{--bg:oklch(13% .018 250);--surface:oklch(18% .018 250);--surface-2:oklch(22% .018 250);--fg:oklch(93% .01 250);--muted:oklch(68% .014 250);--dim:oklch(50% .014 250);--border:oklch(31% .014 250);--accent:oklch(62% .15 235);--success:oklch(67% .16 150);--warn:oklch(77% .16 78);--danger:oklch(64% .19 25);--font-body:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",system-ui,sans-serif;--font-mono:"JetBrains Mono","IBM Plex Mono",ui-monospace,Menlo,monospace}
+    *{box-sizing:border-box}html{background:var(--bg);color:var(--fg);color-scheme:dark}body{margin:0;min-height:100vh;font-family:var(--font-body);background:var(--bg)}a{color:inherit;text-decoration:none}button,input,textarea,select{font:inherit}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    .app{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:100vh}.rail{position:sticky;top:0;height:100vh;padding:18px 14px;border-right:1px solid var(--border);background:oklch(11% .016 250/.96)}.brand{display:flex;gap:10px;align-items:center;padding:8px 8px 18px;border-bottom:1px solid var(--border)}.mark{width:32px;height:32px;display:grid;place-items:center;border:1px solid var(--border);background:var(--surface);color:var(--accent);font:600 15px/1 var(--font-mono)}.brand h1{margin:0;font-size:18px}.brand p,.side-note{margin:3px 0 0;color:var(--muted);font-size:12px;line-height:1.45}.nav{display:grid;gap:6px;margin-top:18px}.nav a{display:flex;justify-content:space-between;align-items:center;min-height:38px;padding:0 10px;border:1px solid transparent;border-radius:6px;color:var(--muted)}.nav a.active{color:var(--fg);border-color:var(--border);background:var(--surface)}.ticker-stack{margin-top:18px;padding-top:16px;border-top:1px solid var(--border)}.kicker{color:var(--dim);font:600 11px/1 var(--font-mono);letter-spacing:.08em;text-transform:uppercase}
+    main{padding:18px;min-width:0}.topbar{display:flex;justify-content:space-between;gap:16px;align-items:end;margin-bottom:14px}h2{margin:0;font-size:clamp(26px,3vw,40px);line-height:1.05;letter-spacing:-.02em}.lead{margin:6px 0 0;max-width:84ch;color:var(--muted);font-size:14px;line-height:1.5}.toolbar{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.btn,.select,.input{min-height:36px;padding:0 12px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--fg);font-weight:550}.btn{cursor:pointer;transition:background 140ms ease,border-color 140ms ease,transform 140ms ease}.btn:hover:not(:disabled),.nav a:hover{border-color:var(--accent);background:var(--surface-2)}.btn:active:not(:disabled){transform:translateY(1px)}.btn.primary{background:var(--accent);color:oklch(10% .015 250);border-color:transparent}.btn.primary:hover:not(:disabled){background:color-mix(in oklab,var(--accent),white 10%)}.btn.danger{border-color:oklch(48% .15 25);color:var(--danger)}.btn:disabled{opacity:.45;cursor:not-allowed}.btn.loading{position:relative;color:transparent}.btn.loading:after{content:"";position:absolute;inset:0;margin:auto;width:14px;height:14px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;color:var(--fg);animation:spin 700ms linear infinite}textarea.input{min-height:72px;padding:10px 12px;resize:vertical;width:100%}
+    .summary{display:grid;grid-template-columns:1.15fr repeat(3,1fr);gap:10px;margin-bottom:14px}.stat{padding:13px;border:1px solid var(--border);border-radius:8px;background:var(--surface)}.stat label{color:var(--dim);font:600 11px/1 var(--font-mono);letter-spacing:.08em;text-transform:uppercase}.stat strong{display:block;margin-top:8px;font:650 24px/1 var(--font-mono)}.statusline{display:flex;align-items:center;gap:8px;margin-top:8px;color:var(--muted);font-size:13px}.dot{width:8px;height:8px;border-radius:50%;background:var(--dim);display:inline-block}.dot.good{background:var(--success)}.dot.warn{background:var(--warn)}.dot.bad{background:var(--danger)}.decision-strip{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:10px;margin-bottom:14px}.decision-card{padding:12px 13px;border:1px solid var(--border);border-radius:8px;background:oklch(15% .016 250)}.decision-card strong{display:block;margin-bottom:6px;font-size:13px}.decision-card p{margin:0;color:var(--muted);font-size:12px;line-height:1.45}.decision-card.ready{border-color:color-mix(in oklab,var(--border),var(--success) 38%)}.decision-card.blocked{border-color:color-mix(in oklab,var(--border),var(--danger) 46%)}.decision-card.warn{border-color:color-mix(in oklab,var(--border),var(--warn) 42%)}
+    .layout{display:grid;grid-template-columns:minmax(0,1.25fr) 380px;gap:14px;align-items:start}.panel{border:1px solid var(--border);background:oklch(16% .017 250/.94);border-radius:8px;overflow:hidden}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:46px;padding:12px 14px;border-bottom:1px solid var(--border)}.panel-head h3{margin:0;font-size:15px}.panel-body{padding:14px}.stack{display:grid;gap:12px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    table{width:100%;border-collapse:collapse;font-size:13px}caption{padding:0 0 8px;color:var(--muted);font-size:12px;text-align:left}th,td{padding:10px 8px;border-bottom:1px solid var(--border);text-align:left;vertical-align:middle}tbody tr:hover{background:oklch(19% .018 250/.72)}th{color:var(--dim);font:600 11px/1 var(--font-mono);letter-spacing:.08em;text-transform:uppercase}.num{font-family:var(--font-mono);font-variant-numeric:tabular-nums}.pill{display:inline-flex;align-items:center;gap:7px;min-height:24px;padding:0 8px;border:1px solid var(--border);border-radius:999px;background:var(--surface-2);color:var(--muted);font:12px/1 var(--font-mono);white-space:nowrap}.pill.good{color:var(--success)}.pill.warn{color:var(--warn)}.pill.bad{color:var(--danger)}.link{color:var(--accent)}.muted{color:var(--muted)}.select-cell{width:42px;text-align:center}.row-check{width:18px;height:18px;accent-color:var(--accent)}
+    .ticket{display:grid;gap:10px}.ticket label{display:grid;gap:6px;color:var(--muted);font-size:12px}.ticket input,.ticket select{width:100%}.box{padding:12px;border:1px solid var(--border);border-radius:7px;background:var(--surface)}.box strong{display:block;font-size:14px}.box p{margin:7px 0 0;color:var(--muted);font-size:12px;line-height:1.4}.warnbox{border-color:oklch(52% .13 78);background:oklch(20% .035 78/.42)}.submit-row{display:flex;align-items:center;gap:8px;padding:10px;border:1px solid var(--border);border-radius:7px;background:var(--surface)}.submit-row input{width:auto}.choice{display:grid;grid-template-columns:1fr 1fr;gap:8px;min-width:300px}.choice-card{padding:9px;border:1px solid var(--border);border-radius:7px;background:var(--surface)}.choice-card b{display:block;margin-bottom:5px;font-size:12px}.choice-card small{display:block;color:var(--muted);font-size:11px;line-height:1.35}.choice-card:hover{border-color:color-mix(in oklab,var(--border),var(--accent) 42%)}.mini-actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}.mini-actions .btn{min-height:28px;padding:0 8px;font-size:12px}.gate-stack{display:grid;gap:6px;margin-top:8px}.gate{display:grid;grid-template-columns:76px 1fr;gap:8px;align-items:center;color:var(--muted);font-size:11px}.gate-bar{height:7px;border:1px solid var(--border);border-radius:999px;background:oklch(13% .016 250);overflow:hidden}.gate-bar i{display:block;height:100%;background:var(--success)}.gate-bar i.warn{background:var(--warn)}.policy-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.policy-card{padding:10px;border:1px solid var(--border);border-radius:7px;background:var(--surface)}.policy-card label{display:flex;align-items:center;gap:7px;margin-top:8px;color:var(--muted);font-size:12px}.policy-card input[type=checkbox]{width:auto}.bot-step{display:grid;grid-template-columns:84px 1fr;gap:10px;align-items:start;padding:10px;border:1px solid var(--border);border-radius:7px;background:var(--surface)}.bot-step .pill{justify-content:center}.bot-log{max-height:180px;overflow:auto}.exec-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.exec-card{padding:10px;border:1px solid var(--border);border-radius:7px;background:var(--surface)}.exec-card label{display:flex;align-items:center;gap:7px;margin-top:8px;color:var(--muted);font-size:12px}.exec-card input[type=checkbox]{width:auto}.exit-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.exit-grid label{display:grid;gap:6px;color:var(--muted);font-size:12px}.exit-summary{display:grid;grid-template-columns:1fr 1fr;gap:8px}.exit-summary .box{border-color:color-mix(in oklab,var(--border),var(--accent) 18%)}.checklist{display:grid;gap:7px}.check{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:oklch(14% .016 250)}.check span:first-child{font-size:12px;color:var(--muted)}.queue-health{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.queue-health .box{min-height:70px}.empty-state{padding:24px 14px!important;text-align:center;color:var(--muted);white-space:normal}.empty-state strong{display:block;margin-bottom:5px;color:var(--fg);font-size:14px}.row-blocked{background:oklch(17% .026 25/.36)}.row-invalid{box-shadow:inset 3px 0 0 var(--danger);background:oklch(17% .03 25/.48)}.row-queued{background:oklch(14% .014 250/.74);color:var(--muted)}.row-queued input{opacity:.7}.status-meta{display:block;margin-top:5px;color:var(--dim);font:11px/1.35 var(--font-mono)}.field-hint{display:block;margin-top:4px;color:var(--danger);font-size:11px;line-height:1.35}.toast{position:fixed;right:18px;bottom:18px;max-width:380px;padding:12px 14px;border:1px solid var(--border);border-radius:8px;background:oklch(12% .016 250/.96);box-shadow:0 20px 60px rgba(0,0,0,.28);opacity:0;transform:translateY(8px);transition:180ms ease}.toast.show{opacity:1;transform:translateY(0)}:focus-visible{outline:2px solid var(--accent);outline-offset:2px}@keyframes spin{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+    @media(max-width:1120px){.app,.layout{grid-template-columns:1fr}.rail{position:static;height:auto}.summary,.decision-strip{grid-template-columns:repeat(2,1fr)}.topbar{align-items:start;flex-direction:column}.toolbar{justify-content:flex-start}}@media(max-width:720px){.summary,.decision-strip,.grid2,.policy-grid,.exec-grid,.exit-grid,.exit-summary,.queue-health{grid-template-columns:1fr}.choice{grid-template-columns:1fr;min-width:240px}table{display:block;overflow:auto;white-space:nowrap}.toolbar,.toolbar .btn,.toolbar .input,.toolbar .select{width:100%}}
+  </style>
+</head>
+<body>
+<div class="app"><aside class="rail"><div class="brand"><div class="mark">CX</div><div><h1>Codex</h1><p>Portfolio decision engine</p></div></div><nav class="nav" aria-label="Primary"><a href="index.html">Command Center <span>01</span></a><a href="macro.html">Macro Regime <span>02</span></a><a href="screener.html">Screener <span>03</span></a><a href="watchlists.html">Watchlists <span>04</span></a><a href="ticker-detail.html">Ticker Detail <span>05</span></a><a class="active" href="trades.html">Trade Ideas <span>06</span></a><a href="positions.html">Positions <span>07</span></a><a href="alerts.html">Alerts <span>08</span></a></nav><div class="ticker-stack"><div class="kicker">Idea job</div><p class="side-note">Turn daily recommendations into reviewable idea tickets, then stage broker-ready Alpaca payloads only after approval.</p></div></aside>
+<main><header class="topbar"><div><div class="kicker">Daily Trade Ideas</div><h2>Trade Ideas</h2><p class="lead">Daily idea queue for entries, trims, exits, and hedge expressions. Decision support only, not investment advice. This prototype stages Alpaca-style orders locally; live execution should remain gated behind explicit account, paper/live, exit-policy, and final-review controls.</p></div><div class="toolbar"><label class="sr-only" for="tradeDate">Idea run date</label><input class="input" id="tradeDate" type="date"><label class="sr-only" for="mode">Broker mode</label><select class="select" id="mode"><option value="paper">Alpaca paper</option><option value="live">Alpaca live</option></select><button class="btn" id="run">Generate daily ideas</button><button class="btn primary" id="save">Save ideas</button></div></header>
+  <section class="summary"><div class="stat"><label>Broker mode</label><strong id="brokerMode">Paper</strong><div class="statusline"><i class="dot good" id="brokerDot"></i><span id="brokerCopy">Execution disabled until reviewed</span></div></div><div class="stat"><label>Recommendations</label><strong id="recCount">0</strong></div><div class="stat"><label>Staged tickets</label><strong id="stageCount">0</strong></div><div class="stat"><label>Est. notional</label><strong class="num" id="notional">$0</strong></div></section>
+  <section class="decision-strip" aria-label="Trade idea readiness"><div class="decision-card" id="whatCard"><strong>What can trade</strong><p id="whatCopy">Gate stack has not run yet.</p></div><div class="decision-card" id="whenCard"><strong>When to execute</strong><p id="whenCopy">Intraday confirmation controls entry timing.</p></div><div class="decision-card" id="exitCard"><strong>How to exit</strong><p id="exitCopy">Exit policy is required before any backend queue.</p></div></section>
+  <section class="layout">
+    <div class="stack">
+      <section class="panel"><div class="panel-head"><h3>Daily trade ideas</h3><span class="pill">stock / option either-or</span></div><div class="panel-body"><table><caption>Ranked stock and options expressions generated from gates, intraday timing rules, and portfolio risk.</caption><thead><tr><th>Priority</th><th>Ticker</th><th>Either / or expression</th><th>Signal</th><th>Risk</th></tr></thead><tbody id="recs"></tbody></table></div></section>
+      <section class="panel"><div class="panel-head"><h3>Staged Alpaca tickets</h3><span class="pill" id="submitState">not submitted</span></div><div class="panel-body"><table><caption>Selected staged tickets are eligible for backend queueing; queued rows become locked audit records.</caption><thead><tr><th class="select-cell">Use</th><th>Symbol</th><th>Expression</th><th>Qty</th><th>Type</th><th>Limit</th><th>TIF</th><th>Status</th></tr></thead><tbody id="orders"></tbody></table></div></section>
+    </div>
+    <aside class="stack">
+      <section class="panel"><div class="panel-head"><h3>Order ticket</h3><button class="btn" id="stageManual">Stage manual</button></div><div class="panel-body ticket"><div class="grid2"><label>Symbol<input class="input" id="symbol" value="GOOGL"></label><label>Side<select class="select" id="side"><option>buy</option><option>sell</option></select></label><label>Quantity<input class="input" id="qty" type="number" min="1" value="10"></label><label>Order type<select class="select" id="orderType"><option>limit</option><option>market</option><option>stop_limit</option></select></label><label>Limit price<input class="input" id="limit" type="number" step=".01" value="313"></label><label>Time in force<select class="select" id="tif"><option>day</option><option>gtc</option></select></label></div><label>Reason<textarea class="input" id="reason">Entry only if chart confirms Add zone and macro gate is not STRESS.</textarea></label></div></section>
+      <section class="panel"><div class="panel-head"><h3>Alpaca execution adapter</h3><span class="pill" id="adapterState">paper endpoint</span></div><div class="panel-body stack"><div class="box"><strong>Execution contract</strong><p>The browser drafts and stages decisions. A backend trading service should own Alpaca keys, account validation, idempotent order submission, fills, cancels, and audit logs.</p></div><div class="queue-health" aria-label="Queue health"><div class="box"><strong id="queueReadiness">Blocked</strong><p id="queueReadinessCopy">Review checklist before queueing.</p></div><div class="box"><strong id="orderBudget">0 / 5</strong><p>Selected staged orders against the daily cap.</p></div><div class="box"><strong id="riskBudget">$0</strong><p>Selected queue risk; each ticket must fit the cap.</p></div></div><div class="grid2"><label class="box"><strong>Buying power</strong><input class="input num" id="buyingPower" type="number" value="250000"></label><label class="box"><strong>Max ticket risk %</strong><input class="input num" id="maxPct" type="number" step=".1" value="2.5"></label><label class="box"><strong>Max orders / day</strong><input class="input num" id="maxDailyOrders" type="number" min="1" value="5"></label><label class="box"><strong>Bot authority</strong><select class="select" id="botAuthority"><option value="paper-only">Paper only</option><option value="live-review">Live requires review</option><option value="disabled">Execution disabled</option></select></label></div><div class="policy-grid"><div class="policy-card"><strong>Intraday default</strong><p class="muted">Daily gates choose the ticker. Intraday tape chooses entry, size, and cancel timing.</p><label><input type="checkbox" id="intradayOnly"> Flatten or cancel before close unless overnight-approved</label></div><div class="policy-card"><strong>Overnight exception</strong><p class="muted">Allowed only when all four gates pass or a human explicitly approves the idea.</p><label><input type="checkbox" id="allowOvernight"> Permit queued overnight holds for eligible ideas</label></div></div><label class="submit-row"><input type="checkbox" id="killSwitch"><span>Kill switch on: block every bot and broker submission.</span></label><label class="submit-row"><input type="checkbox" id="reviewed"><span>I reviewed symbols, quantity, risk, bot authority, overnight policy, and Alpaca mode before submission.</span></label><button class="btn danger" id="submit" disabled>Queue selected for Alpaca backend</button><div class="box warnbox"><strong>Current workspace capability</strong><p>The available Alpaca connector here is market-data focused. Real order execution needs a backend Alpaca Trading API service, not direct browser calls.</p></div></div></section>
+      <section class="panel"><div class="panel-head"><h3>Trading bot</h3><span class="pill" id="botModeLabel">draft only</span></div><div class="panel-body stack"><label class="box"><strong>Automation level</strong><select class="select" id="botMode"><option value="observe">Observe signals only</option><option value="draft">Draft recommendations</option><option value="stage">Stage paper tickets</option><option value="submit-gated">Queue after review</option></select></label><div class="exec-grid"><div class="exec-card"><strong>Paper path</strong><p class="muted">Bot may stage and queue simulated Alpaca payloads after pre-trade checks.</p><label><input type="checkbox" id="allowPaperQueue"> Allow paper queue</label></div><div class="exec-card"><strong>Live path</strong><p class="muted">Live orders require review, backend account check, and per-order approval.</p><label><input type="checkbox" id="allowLiveQueue"> Allow reviewed live queue</label></div></div><div class="bot-step"><span class="pill good">1 Gates</span><p class="muted">Macro, source confidence, chart structure, and portfolio fit decide what is allowed to trade.</p></div><div class="bot-step"><span class="pill warn">2 Intraday</span><p class="muted">VWAP, spread, stale quote, volume confirmation, and time-to-close decide when to enter or cancel.</p></div><div class="bot-step"><span class="pill bad">3 Overnight</span><p class="muted">Only all-gates-pass or human-approved ideas may carry overnight; other tickets default to DAY and flatten/cancel.</p></div><div class="checklist" id="preTradeChecks"></div><button class="btn primary" id="botRun">Run bot pass</button><div class="box bot-log" id="botLog"><strong>Bot run log</strong><p>No bot pass has run in this browser session.</p></div></div></section>
+      <section class="panel"><div class="panel-head"><h3>Exit policy</h3><span class="pill" id="exitModeLabel">stage exits</span></div><div class="panel-body stack"><div class="exit-summary"><div class="box"><strong>Profit rule</strong><p id="profitRule">Trim at target 1, trail after target 2.</p></div><div class="box"><strong>Risk rule</strong><p id="riskRule">Stop, gate failure, and close-before-earnings rules must be defined before queueing.</p></div></div><div class="exit-grid"><label>Exit mode<select class="select" id="exitMode"><option value="alert">Alert only</option><option value="stage">Stage exit order</option><option value="auto-paper">Auto-exit paper only</option></select></label><label>Target 1 %<input class="input num" id="targetOne" type="number" step=".1" min=".1" value="3"></label><label>Target 2 %<input class="input num" id="targetTwo" type="number" step=".1" min=".1" value="6"></label><label>Stop %<input class="input num" id="stopLoss" type="number" step=".1" min=".1" value="2.5"></label><label>Trail after T1 %<input class="input num" id="trailPct" type="number" step=".1" min=".1" value="1.4"></label><label>Max intraday hold<input class="input num" id="maxHold" type="number" min="5" value="240"></label><label>Gate failure<select class="select" id="gateFailure"><option value="stage-review">Stage review</option><option value="stage-exit">Stage exit</option><option value="alert-only">Alert only</option></select></label><label>Earnings blackout<select class="select" id="earningsBlackout"><option value="block-new">Block new entry</option><option value="stage-review">Stage review</option><option value="allow">Allow if overnight-approved</option></select></label></div><div class="box warnbox"><strong>Auto-close guardrail</strong><p>Auto-exit is allowed only in paper mode in this prototype. Live exits should be queued to the backend with the same review, kill-switch, and audit controls as entries.</p></div></div></section>
+      <section class="panel"><div class="panel-head"><h3>Execution source map</h3><span class="pill">backend required</span></div><div class="panel-body stack"><div class="box"><strong>market.latest</strong><p>Alpaca latest trade / quote for stale-price and limit validation.</p></div><div class="box"><strong>account.guardrails</strong><p>Backend reads Alpaca account, buying power, open orders, current positions, and day-trade status before submit.</p></div><div class="box"><strong>orders.queue</strong><p>Browser sends reviewed tickets to your backend queue with client_order_id for idempotency.</p></div><div class="box"><strong>orders.submit</strong><p>Backend-only Alpaca Trading API call. Store broker order id, fill state, rejects, cancels, and bot run id.</p></div><div class="box"><strong>recommendations.daily</strong><p>Local Scout + chart + macro gate model until strategy engine is wired.</p></div></div></section>
+    </aside>
+  </section>
+</main></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+const STORE="codex-trades-v1";
+const seed={mode:"paper",botMode:"draft",botAuthority:"paper-only",allowPaperQueue:true,allowLiveQueue:false,intradayOnly:true,allowOvernight:true,killSwitch:false,buyingPower:250000,maxPct:2.5,maxDailyOrders:5,exitPolicy:{mode:"stage",targetOne:3,targetTwo:6,stopLoss:2.5,trailPct:1.4,maxHold:240,gateFailure:"stage-review",earningsBlackout:"block-new"},lastRun:"",submitted:[],orders:[],recommendations:[
+{priority:1,symbol:"GOOGL",side:"buy",qty:10,type:"limit",limit:313,tif:"day",signal:"Pullback near Add; MA stack stabilizing",risk:"Do not chase above Add + 5%",status:"ready",approvedOvernight:true,gates:{macro:true,chart:true,source:true,portfolio:true},intraday:"Enter only above VWAP with spread normal and first-hour low holding.",option:{strategy:"Bull call spread",contracts:1,expiry:"45-60 DTE",legs:"Buy 1 ATM call / sell 1 +8% OTM call",debit:6.4,maxLoss:640,trigger:"Use if IV percentile < 55 and price holds 60 MA"}},
+{priority:2,symbol:"EPD",side:"buy",qty:75,type:"limit",limit:29,tif:"gtc",signal:"Income/core add if cash gate remains high",risk:"Size below sleeve max",status:"ready",approvedOvernight:true,gates:{macro:true,chart:true,source:true,portfolio:true},intraday:"Use patient limit near prior close; overnight acceptable for core sleeve.",option:{strategy:"Cash-secured put",contracts:1,expiry:"30-45 DTE",legs:"Sell 1 put near Add zone",debit:-0.55,maxLoss:2900,trigger:"Use only if assignment is acceptable"}},
+{priority:3,symbol:"MSFT",side:"buy",qty:8,type:"limit",limit:340,tif:"day",signal:"Knife warning; only stage, wait for repair",risk:"Requires chart confirmation",status:"watch",approvedOvernight:false,gates:{macro:true,chart:false,source:true,portfolio:true},intraday:"No entry unless RSI repair and price reclaims VWAP before 14:30.",option:{strategy:"Call diagonal",contracts:1,expiry:"60-90 DTE",legs:"Buy 1 longer call / sell 1 nearer OTM call",debit:9.8,maxLoss:980,trigger:"Use only after RSI repair above 50"}},
+{priority:4,symbol:"HYG",side:"sell",qty:25,type:"limit",limit:79,tif:"day",signal:"Credit proxy hedge trim if spreads calm",risk:"Check HY OAS before acting",status:"review",approvedOvernight:false,gates:{macro:false,chart:true,source:true,portfolio:false},intraday:"Only execute if HY spread gate confirms; no overnight exception.",option:{strategy:"Put spread hedge",contracts:2,expiry:"45-75 DTE",legs:"Buy 1 put / sell 1 lower put",debit:0.85,maxLoss:170,trigger:"Use if HY OAS widens into amber"}}
+]};
+let state=normalize(load());
+const requestedSymbol=(new URLSearchParams(location.search).get("symbol")||"").toUpperCase();
+function clone(x){return JSON.parse(JSON.stringify(x))}
+function load(){try{return {...clone(seed),...JSON.parse(localStorage.getItem(STORE)||"{}")}}catch{return clone(seed)}}
+function normalize(next){
+  const seededBySymbol=Object.fromEntries(seed.recommendations.map(r=>[r.symbol,r]));
+  next.recommendations=(next.recommendations||[]).map(r=>({...r,option:r.option||seededBySymbol[r.symbol]?.option||{strategy:"Long call",contracts:1,expiry:"45-60 DTE",legs:"Buy 1 call near Add zone",debit:5,maxLoss:500,trigger:"Use only if IV percentile is fair"},gates:r.gates||seededBySymbol[r.symbol]?.gates||{macro:true,chart:false,source:true,portfolio:false},intraday:r.intraday||seededBySymbol[r.symbol]?.intraday||"Wait for VWAP reclaim and normal spread before entry.",approvedOvernight:!!(r.approvedOvernight||seededBySymbol[r.symbol]?.approvedOvernight)}));
+  next.botMode=next.botMode||"draft";
+  next.botAuthority=next.botAuthority||"paper-only";
+  next.maxDailyOrders=next.maxDailyOrders||5;
+  next.exitPolicy={...clone(seed.exitPolicy),...(next.exitPolicy||{})};
+  next.orders=(next.orders||[]).map(o=>({...o,selected:o.selected!==false}));
+  next.allowPaperQueue=next.allowPaperQueue!==false;
+  next.allowLiveQueue=!!next.allowLiveQueue;
+  next.intradayOnly=next.intradayOnly!==false;
+  next.allowOvernight=next.allowOvernight!==false;
+  next.killSwitch=!!next.killSwitch;
+  return next;
+}
+function save(){localStorage.setItem(STORE,JSON.stringify(state))}
+function money(v){return "$"+Math.round(Number(v)||0).toLocaleString()}
+function esc(value){return String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[ch]))}
+function cls(status){return status==="ready"?"good":status==="watch"?"warn":"bad"}
+function today(){return new Date().toISOString().slice(0,10)}
+function orderNotional(o){return o.type==="multi_leg_option"?Number(o.max_loss||0):Number(o.qty||0)*Number(o.limit||0)}
+function selectedStagedOrders(){return state.orders.filter(o=>o.status==="staged"&&o.selected!==false)}
+function maxOrderRisk(){return Number(state.buyingPower||0)*Number(state.maxPct||0)/100}
+function ticketErrors(o){
+  const errors=[];
+  const symbol=String(o.symbol||"").trim();
+  const qty=Number(o.qty||0);
+  const limit=Number(o.limit||0);
+  const risk=orderNotional(o);
+  if(!/^[A-Z][A-Z0-9.\-]{0,9}$/.test(symbol))errors.push("symbol");
+  if(!Number.isFinite(qty)||qty<=0)errors.push("quantity");
+  if(o.type!=="market"&&(!Number.isFinite(limit)||limit<=0))errors.push("limit");
+  if(!Number.isFinite(risk)||risk<=0)errors.push("risk");
+  if(risk>maxOrderRisk())errors.push("max risk");
+  return errors;
+}
+function gateCount(r){return Object.values(r.gates||{}).filter(Boolean).length}
+function overnightEligible(r){return gateCount(r)>=4||!!r.approvedOvernight}
+function ticketMayHold(o){return !state.intradayOnly||(state.allowOvernight&&o.overnightPolicy==="overnight-ok")||o.overnightPolicy==="human-approved"}
+function gateMarkup(r){
+  const rows=[["Macro",r.gates?.macro],["Chart",r.gates?.chart],["Source",r.gates?.source],["Portfolio",r.gates?.portfolio]];
+  return `<div class="gate-stack">${rows.map(([label,pass])=>`<div class="gate"><span>${label}</span><span class="gate-bar"><i class="${pass?"":"warn"}" style="width:${pass?100:38}%"></i></span></div>`).join("")}</div>`;
+}
+function orderPolicyFor(r){return state.allowOvernight&&overnightEligible(r)?"overnight-ok":"intraday-flat"}
+function policyLabel(policy){return policy==="overnight-ok"?"overnight ok":policy==="human-approved"?"manual overnight":"intraday flat"}
+function render(){
+  document.getElementById("tradeDate").value=state.lastRun||today();
+  document.getElementById("mode").value=state.mode;
+  document.getElementById("botMode").value=state.botMode||"draft";
+  document.getElementById("botAuthority").value=state.botAuthority||"paper-only";
+  document.getElementById("allowPaperQueue").checked=!!state.allowPaperQueue;
+  document.getElementById("allowLiveQueue").checked=!!state.allowLiveQueue;
+  document.getElementById("intradayOnly").checked=!!state.intradayOnly;
+  document.getElementById("allowOvernight").checked=!!state.allowOvernight;
+  document.getElementById("killSwitch").checked=!!state.killSwitch;
+  document.getElementById("buyingPower").value=state.buyingPower;
+  document.getElementById("maxPct").value=state.maxPct;
+  document.getElementById("maxDailyOrders").value=state.maxDailyOrders;
+  document.getElementById("exitMode").value=state.exitPolicy.mode;
+  document.getElementById("targetOne").value=state.exitPolicy.targetOne;
+  document.getElementById("targetTwo").value=state.exitPolicy.targetTwo;
+  document.getElementById("stopLoss").value=state.exitPolicy.stopLoss;
+  document.getElementById("trailPct").value=state.exitPolicy.trailPct;
+  document.getElementById("maxHold").value=state.exitPolicy.maxHold;
+  document.getElementById("gateFailure").value=state.exitPolicy.gateFailure;
+  document.getElementById("earningsBlackout").value=state.exitPolicy.earningsBlackout;
+  document.getElementById("exitModeLabel").textContent=state.exitPolicy.mode.replace("-"," ");
+  document.getElementById("profitRule").textContent=`Trim at +${state.exitPolicy.targetOne}%, reassess at +${state.exitPolicy.targetTwo}%, then trail ${state.exitPolicy.trailPct}% after first target.`;
+  document.getElementById("riskRule").textContent=`Stop at -${state.exitPolicy.stopLoss}%, max intraday hold ${state.exitPolicy.maxHold} minutes, gate failure action: ${state.exitPolicy.gateFailure.replace("-"," ")}.`;
+  document.getElementById("brokerMode").textContent=state.mode==="paper"?"Paper":"Live";
+  document.getElementById("brokerDot").className=`dot ${state.killSwitch?"bad":state.mode==="paper"?"good":"warn"}`;
+  document.getElementById("brokerCopy").textContent=state.killSwitch?"Kill switch blocks all submissions":state.mode==="paper"?"Paper queue; backend still required":"Live queue requires review and backend approval";
+  document.getElementById("adapterState").textContent=state.killSwitch?"blocked":state.mode==="paper"?"paper endpoint":"live endpoint";
+  document.getElementById("botModeLabel").textContent=(state.botMode||"draft").replace("-"," ");
+  document.getElementById("recCount").textContent=state.recommendations.length;
+  const staged=state.orders.filter(o=>o.status==="staged");
+  const selected=selectedStagedOrders();
+  document.getElementById("stageCount").textContent=staged.length;
+  document.getElementById("notional").textContent=money(selected.reduce((a,o)=>a+orderNotional(o),0));
+  renderDecisionStrip();
+  renderQueueHealth();
+  renderRecommendations();
+  renderOrders();
+  if(requestedSymbol&&!document.getElementById("symbol").dataset.routed){document.getElementById("symbol").value=requestedSymbol;document.getElementById("symbol").dataset.routed="1"}
+  renderPreTradeChecks();
+  document.getElementById("submit").disabled=!canQueueSubmission();
+}
+function renderDecisionStrip(){
+  const ready=state.recommendations.filter(r=>r.status==="ready");
+  const allGate=state.recommendations.filter(overnightEligible);
+  const staged=state.orders.filter(o=>o.status==="staged");
+  const exitDefined=Number(state.exitPolicy.targetOne)>0&&Number(state.exitPolicy.stopLoss)>0&&Number(state.exitPolicy.maxHold)>0;
+  const whatCard=document.getElementById("whatCard");
+  const whenCard=document.getElementById("whenCard");
+  const exitCard=document.getElementById("exitCard");
+  whatCard.className=`decision-card ${ready.length?"ready":"warn"}`;
+  whenCard.className=`decision-card ${staged.length?"ready":"warn"}`;
+  exitCard.className=`decision-card ${exitDefined?"ready":"blocked"}`;
+  document.getElementById("whatCopy").textContent=`${ready.length} ready idea${ready.length===1?"":"s"}; ${allGate.length} pass all gates and can be overnight-eligible.`;
+  document.getElementById("whenCopy").textContent=state.intradayOnly?"Intraday execution is the default; overnight requires all gates or human approval.":"Intraday filter is relaxed; queue still needs review and source checks.";
+  document.getElementById("exitCopy").textContent=exitDefined?`Exit mode ${state.exitPolicy.mode.replace("-"," ")} with +${state.exitPolicy.targetOne}% target and -${state.exitPolicy.stopLoss}% stop.`:"Define target, stop, and max hold before queueing.";
+}
+function renderQueueHealth(){
+  const staged=selectedStagedOrders();
+  const checks=preTradeChecks();
+  const failing=checks.filter(c=>!c.pass).map(c=>c.label);
+  const queueReady=canQueueSubmission();
+  document.getElementById("queueReadiness").textContent=queueReady?"Ready to queue":"Blocked";
+  document.getElementById("queueReadinessCopy").textContent=queueReady?"Reviewed tickets can be handed to the backend queue.":(failing[0]||"Review checkbox is required before queueing.");
+  document.getElementById("orderBudget").textContent=`${staged.length} / ${state.maxDailyOrders||0}`;
+  document.getElementById("riskBudget").textContent=money(staged.reduce((a,o)=>a+orderNotional(o),0));
+}
+function canQueueSubmission(){
+  if(state.killSwitch||!selectedStagedOrders().length||!document.getElementById("reviewed").checked)return false;
+  if(state.botAuthority==="disabled")return false;
+  if(!preTradeChecks().every(c=>c.pass))return false;
+  if(state.mode==="paper")return !!state.allowPaperQueue;
+  return state.botAuthority==="live-review"&&!!state.allowLiveQueue;
+}
+function preTradeChecks(){
+  const staged=selectedStagedOrders();
+  const notional=staged.reduce((a,o)=>a+orderNotional(o),0);
+  const maxNotional=maxOrderRisk();
+  const blockedOvernight=staged.filter(o=>state.intradayOnly&&o.overnightPolicy!=="intraday-flat"&&!ticketMayHold(o));
+  const invalidTickets=staged.filter(o=>ticketErrors(o).length);
+  const duplicateSymbols=new Set();
+  const seen=new Set();
+  staged.forEach(o=>{if(seen.has(o.symbol))duplicateSymbols.add(o.symbol);seen.add(o.symbol)});
+  return [
+    {label:"Kill switch off",pass:!state.killSwitch},
+    {label:"At least one selected staged ticket",pass:staged.length>0},
+    {label:"Daily order cap respected",pass:staged.length<=Number(state.maxDailyOrders||0)},
+    {label:"Every selected ticket has valid symbol, quantity, and price",pass:invalidTickets.length===0},
+    {label:"Each selected ticket inside max order budget",pass:staged.every(o=>orderNotional(o)<=maxNotional)},
+    {label:"Selected risk inside buying power",pass:notional<=Number(state.buyingPower||0)},
+    {label:"No duplicate symbols in queue",pass:duplicateSymbols.size===0},
+    {label:"Mode allowed by bot authority",pass:state.mode==="paper"?!!state.allowPaperQueue:state.botAuthority==="live-review"&&!!state.allowLiveQueue},
+    {label:"Overnight policy respected",pass:blockedOvernight.length===0},
+    {label:"Exit plan defined before entry",pass:Number(state.exitPolicy.targetOne)>0&&Number(state.exitPolicy.stopLoss)>0&&Number(state.exitPolicy.maxHold)>0},
+    {label:"Auto-exit limited to paper mode",pass:state.exitPolicy.mode!=="auto-paper"||state.mode==="paper"}
+  ];
+}
+function renderPreTradeChecks(){
+  document.getElementById("preTradeChecks").innerHTML=preTradeChecks().map(c=>`<div class="check"><span>${c.label}</span><span class="pill ${c.pass?"good":"bad"}">${c.pass?"pass":"block"}</span></div>`).join("");
+}
+function renderRecommendations(){
+  document.getElementById("recs").innerHTML=state.recommendations.length?state.recommendations.map((r,i)=>{
+    const symbol=esc(r.symbol);
+    const hrefSymbol=encodeURIComponent(String(r.symbol||""));
+    return `<tr><td><span class="pill ${cls(r.status)}">P${esc(r.priority)}</span><br><span class="pill ${overnightEligible(r)?"good":"warn"}">${gateCount(r)}/4 gates</span>${gateMarkup(r)}</td><td><strong class="num">${symbol}</strong><br><a class="link" href="chart.html?symbol=${hrefSymbol}">chart</a> · <a class="link" href="ticker-detail.html?symbol=${hrefSymbol}">detail</a><br><span class="pill ${overnightEligible(r)?"good":"warn"}">${overnightEligible(r)?"overnight eligible":"intraday only"}</span></td><td><div class="choice"><div class="choice-card"><b>Stock order</b><small><span class="num">${esc(String(r.side||"").toUpperCase())} ${esc(r.qty)}</span> ${esc(r.type)} ${r.limit?money(r.limit):"market"} · ${esc(r.tif)}</small><div class="mini-actions"><button class="btn primary" data-stage-stock="${i}" aria-label="Stage stock idea for ${symbol}">Stage stock</button></div></div><div class="choice-card"><b>${esc(r.option.strategy)}</b><small>${esc(r.option.legs)}<br>${esc(r.option.expiry)} · ${r.option.debit<0?"credit":"debit"} ${money(Math.abs(r.option.debit)*100)} · max loss ${money(r.option.maxLoss)}</small><div class="mini-actions"><button class="btn" data-stage-option="${i}" aria-label="Stage option strategy for ${symbol}">Stage option</button></div></div></div></td><td>${esc(r.signal)}<br><span class="muted">${esc(r.intraday)}</span><br><span class="muted">${esc(r.option.trigger)}</span></td><td>${esc(r.risk)}</td></tr>`;
+  }).join(""):`<tr><td colspan="5" class="empty-state"><strong>No ideas generated</strong>Run the daily idea job to populate stock and option expressions from the gate stack.</td></tr>`;
+  document.querySelectorAll("[data-stage-stock]").forEach(btn=>btn.addEventListener("click",e=>stageRecommendation(Number(e.currentTarget.dataset.stageStock),"stock")));
+  document.querySelectorAll("[data-stage-option]").forEach(btn=>btn.addEventListener("click",e=>stageRecommendation(Number(e.currentTarget.dataset.stageOption),"option")));
+}
+function renderOrders(){
+  document.getElementById("orders").innerHTML=state.orders.map((o,i)=>{
+    const isStaged=o.status==="staged";
+    const errors=isStaged?ticketErrors(o):[];
+    const rowClass=[isStaged&&!ticketMayHold(o)?"row-blocked":"",errors.length?"row-invalid":"",!isStaged?"row-queued":""].filter(Boolean).join(" ");
+    const statusMeta=o.queued_at?`<span class="status-meta">${new Date(o.queued_at).toLocaleString()}</span>`:(!isStaged?`<span class="status-meta">Locked audit row</span>`:"");
+    const symbol=esc(o.symbol||"ticket");
+    return `<tr class="${rowClass}"><td class="select-cell"><label class="sr-only" for="orderSelect${i}">Include ${symbol} in backend queue</label><input id="orderSelect${i}" class="row-check" data-i="${i}" data-k="selected" type="checkbox" ${isStaged?"":"disabled"} ${o.selected!==false?"checked":""} aria-disabled="${isStaged?"false":"true"}"></td><td><strong class="num">${esc(o.symbol||"—")}</strong><br><span class="pill ${ticketMayHold(o)?"good":"warn"}">${policyLabel(o.overnightPolicy||"intraday-flat")}</span>${errors.length?`<span class="field-hint">Fix ${esc(errors.join(", "))} before queueing.</span>`:""}</td><td>${esc(o.expression||o.side)}<br><span class="muted">${esc(o.legs||o.reason||"")}</span></td><td><label class="sr-only" for="orderQty${i}">Quantity for ${symbol}</label><input id="orderQty${i}" class="input num" data-i="${i}" data-k="qty" type="number" min="1" value="${esc(o.qty)}" ${isStaged?"":"disabled"}></td><td>${esc(o.type)}</td><td><label class="sr-only" for="orderLimit${i}">Limit price for ${symbol}</label><input id="orderLimit${i}" class="input num" data-i="${i}" data-k="limit" type="number" step=".01" min="0" value="${esc(o.limit)}" ${isStaged?"":"disabled"}></td><td>${esc(o.tif)}</td><td><span class="pill ${isStaged?"warn":"good"}">${esc(o.status)}</span>${statusMeta}</td></tr>`;
+  }).join("")||`<tr><td colspan="8" class="empty-state"><strong>No staged tickets</strong>Stage a stock order, option strategy, or manual ticket before queueing anything to the backend.</td></tr>`;
+  document.querySelectorAll("#orders input").forEach(input=>input.addEventListener("input",e=>{
+    const item=state.orders[Number(e.target.dataset.i)];
+    if(e.target.dataset.k==="selected")item.selected=e.target.checked;
+    else item[e.target.dataset.k]=Number(e.target.value);
+    save();
+    render();
+  }));
+}
+function setBusy(id,ms=450){
+  const btn=document.getElementById(id);
+  btn.classList.add("loading");
+  btn.setAttribute("aria-busy","true");
+  setTimeout(()=>{btn.classList.remove("loading");btn.removeAttribute("aria-busy")},ms);
+}
+function stageRecommendation(i,expression="stock"){
+  const r=state.recommendations[i];
+  const overnightPolicy=orderPolicyFor(r);
+  const tif=overnightPolicy==="overnight-ok"?"gtc":"day";
+  if(expression==="option"){
+    state.orders.unshift({symbol:r.symbol,expression:r.option.strategy,side:"option",qty:r.option.contracts,type:"multi_leg_option",limit:Math.abs(r.option.debit),tif,status:"staged",selected:true,reason:r.option.trigger,legs:r.option.legs,max_loss:r.option.maxLoss,gates:r.gates,gate_count:gateCount(r),overnightPolicy,exitPolicy:clone(state.exitPolicy),client_order_id:`codex-opt-${r.symbol}-${Date.now()}`});
+    save();
+    toast(`${r.symbol} option strategy staged for review. Broker execution still gated.`);
+    render();
+    return;
+  }
+  const cap=Number(state.buyingPower)*Number(state.maxPct)/100;
+  const notional=Number(r.qty)*Number(r.limit||0);
+  const qty=notional>cap&&r.limit?Math.max(1,Math.floor(cap/Number(r.limit))):r.qty;
+  state.orders.unshift({symbol:r.symbol,expression:"Stock order",side:r.side,qty,type:r.type,limit:r.limit,tif,status:"staged",selected:true,reason:r.signal,gates:r.gates,gate_count:gateCount(r),overnightPolicy,exitPolicy:clone(state.exitPolicy),client_order_id:`codex-${r.symbol}-${Date.now()}`});
+  save();
+  toast(`${r.symbol} staged for Alpaca ${state.mode}. Review ticket before submit.`);
+  render();
+}
+function stageManual(){
+  const ticket={symbol:document.getElementById("symbol").value.trim().toUpperCase(),side:document.getElementById("side").value,qty:Number(document.getElementById("qty").value),type:document.getElementById("orderType").value,limit:Number(document.getElementById("limit").value),tif:document.getElementById("tif").value,status:"staged",selected:true,reason:document.getElementById("reason").value,overnightPolicy:"human-approved",exitPolicy:clone(state.exitPolicy),client_order_id:`codex-manual-${Date.now()}`};
+  const errors=ticketErrors(ticket);
+  if(errors.length){
+    toast(`Manual ticket blocked. Fix ${errors.join(", ")}.`);
+    render();
+    return;
+  }
+  state.orders.unshift(ticket);
+  save();
+  toast("Manual order staged. No real trade was sent.");
+  render();
+}
+function runDaily(){
+  setBusy("run");
+  state.lastRun=document.getElementById("tradeDate").value||today();
+  state.recommendations=state.recommendations.map((r,i)=>({...r,priority:i+1,status:i<2?"ready":i===2?"watch":"review"}));
+  save();
+  toast(`Daily recommendations refreshed for ${state.lastRun}.`);
+  render();
+}
+function runBotPass(){
+  setBusy("botRun");
+  const mode=state.botMode||"draft";
+  const ready=state.recommendations.map((r,i)=>({r,i})).filter(x=>x.r.status==="ready");
+  const checks=preTradeChecks();
+  const blocked=state.killSwitch||state.botAuthority==="disabled";
+  if(mode==="stage"&&!blocked&&state.mode==="paper"&&state.allowPaperQueue){
+    ready.slice(0,2).forEach(x=>stageRecommendation(x.i,"option"));
+  }
+  if(mode==="submit-gated"&&canQueueSubmission()){
+    submitOrders();
+    return;
+  }
+  const lines=[
+    `<strong>Bot run log</strong>`,
+    `<p>${new Date().toLocaleString()} · Mode: ${mode}</p>`,
+    `<p>Reviewed ${state.recommendations.length} recommendations, found ${ready.length} ready candidates, and identified ${ready.filter(x=>overnightEligible(x.r)).length} all-gate overnight-eligible names.</p>`,
+    `<p>Pre-trade checks: ${checks.filter(c=>c.pass).length}/${checks.length} passing.</p>`,
+    `<p>${blocked?"Bot execution is blocked by authority or kill switch.":mode==="submit-gated"?"Queue mode waits for review checkbox and all authority gates.":mode==="stage"?"Top ready option tickets staged locally when paper queue is allowed; no broker order sent.":"No ticket was submitted or staged automatically."}</p>`
+  ];
+  document.getElementById("botLog").innerHTML=lines.join("");
+  save();
+  toast(`Bot pass complete: ${mode}.`);
+  render();
+}
+function submitOrders(){
+  if(!canQueueSubmission()){
+    const firstBlock=preTradeChecks().find(c=>!c.pass);
+    toast(`Submission blocked. ${firstBlock?firstBlock.label:"Review checkbox and bot authority are required."}`);
+    render();
+    return;
+  }
+  const selected=selectedStagedOrders().slice(0,Number(state.maxDailyOrders||1));
+  const payload={broker:"alpaca",destination:"backend-trading-service",mode:state.mode,botAuthority:state.botAuthority,intradayOnly:state.intradayOnly,allowOvernight:state.allowOvernight,exitPolicy:clone(state.exitPolicy),reviewedAt:new Date().toISOString(),preTradeChecks:preTradeChecks(),orders:selected.map(o=>({symbol:o.symbol,side:o.side,type:o.type,qty:String(o.qty),time_in_force:o.tif,limit_price:o.type==="market"?undefined:String(o.limit),legs:o.legs,max_loss:o.max_loss,gate_count:o.gate_count||0,overnight_policy:o.overnightPolicy||"intraday-flat",exit_policy:o.exitPolicy||state.exitPolicy,client_order_id:o.client_order_id}))};
+  state.submitted.unshift(payload);
+  const selectedIds=new Set(selected.map(o=>o.client_order_id));
+  const queuedAt=new Date().toISOString();
+  state.orders=state.orders.map(o=>selectedIds.has(o.client_order_id)?{...o,status:"queued-backend",selected:false,queued_at:queuedAt}:o);
+  save();
+  document.getElementById("submitState").textContent="backend queue";
+  toast("Alpaca backend queue payload saved locally for execution wiring.");
+  render();
+}
+function toast(copy){const el=document.getElementById("toast");el.textContent=copy;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2800)}
+document.getElementById("mode").addEventListener("change",e=>{state.mode=e.target.value;save();render()});
+document.getElementById("botMode").addEventListener("change",e=>{state.botMode=e.target.value;save();render()});
+document.getElementById("botAuthority").addEventListener("change",e=>{state.botAuthority=e.target.value;save();render()});
+document.getElementById("tradeDate").addEventListener("change",e=>{state.lastRun=e.target.value;save()});
+document.getElementById("buyingPower").addEventListener("input",e=>{state.buyingPower=Number(e.target.value);save();render()});
+document.getElementById("maxPct").addEventListener("input",e=>{state.maxPct=Number(e.target.value);save();render()});
+document.getElementById("maxDailyOrders").addEventListener("input",e=>{state.maxDailyOrders=Number(e.target.value);save();render()});
+document.getElementById("exitMode").addEventListener("change",e=>{state.exitPolicy.mode=e.target.value;save();render()});
+document.getElementById("targetOne").addEventListener("input",e=>{state.exitPolicy.targetOne=Number(e.target.value);save();render()});
+document.getElementById("targetTwo").addEventListener("input",e=>{state.exitPolicy.targetTwo=Number(e.target.value);save();render()});
+document.getElementById("stopLoss").addEventListener("input",e=>{state.exitPolicy.stopLoss=Number(e.target.value);save();render()});
+document.getElementById("trailPct").addEventListener("input",e=>{state.exitPolicy.trailPct=Number(e.target.value);save();render()});
+document.getElementById("maxHold").addEventListener("input",e=>{state.exitPolicy.maxHold=Number(e.target.value);save();render()});
+document.getElementById("gateFailure").addEventListener("change",e=>{state.exitPolicy.gateFailure=e.target.value;save();render()});
+document.getElementById("earningsBlackout").addEventListener("change",e=>{state.exitPolicy.earningsBlackout=e.target.value;save();render()});
+document.getElementById("allowPaperQueue").addEventListener("change",e=>{state.allowPaperQueue=e.target.checked;save();render()});
+document.getElementById("allowLiveQueue").addEventListener("change",e=>{state.allowLiveQueue=e.target.checked;save();render()});
+document.getElementById("intradayOnly").addEventListener("change",e=>{state.intradayOnly=e.target.checked;save();render()});
+document.getElementById("allowOvernight").addEventListener("change",e=>{state.allowOvernight=e.target.checked;save();render()});
+document.getElementById("killSwitch").addEventListener("change",e=>{state.killSwitch=e.target.checked;save();render()});
+document.getElementById("reviewed").addEventListener("change",render);
+document.getElementById("stageManual").addEventListener("click",stageManual);
+document.getElementById("run").addEventListener("click",runDaily);
+document.getElementById("botRun").addEventListener("click",runBotPass);
+document.getElementById("save").addEventListener("click",()=>{save();toast("Trade ideas saved locally.")});
+document.getElementById("submit").addEventListener("click",submitOrders);
+render();
+</script>
+</body>
+</html>

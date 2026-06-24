@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Screener 03</title>
+  <style>
+    :root{--bg:oklch(13% .018 250);--surface:oklch(18% .018 250);--surface-2:oklch(22% .018 250);--fg:oklch(93% .01 250);--muted:oklch(68% .014 250);--dim:oklch(50% .014 250);--border:oklch(31% .014 250);--accent:oklch(62% .15 235);--success:oklch(67% .16 150);--warn:oklch(77% .16 78);--danger:oklch(64% .19 25);--font-body:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",system-ui,sans-serif;--font-mono:"JetBrains Mono","IBM Plex Mono",ui-monospace,Menlo,monospace}
+    *{box-sizing:border-box}html{background:var(--bg);color:var(--fg);color-scheme:dark}body{margin:0;min-height:100vh;font-family:var(--font-body);background:var(--bg)}a{color:inherit;text-decoration:none}button,input,textarea,select{font:inherit}
+    .app{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:100vh}.rail{position:sticky;top:0;height:100vh;padding:18px 14px;border-right:1px solid var(--border);background:oklch(11% .016 250/.96)}.brand{display:flex;gap:10px;align-items:center;padding:8px 8px 18px;border-bottom:1px solid var(--border)}.mark{width:32px;height:32px;display:grid;place-items:center;border:1px solid var(--border);background:var(--surface);color:var(--accent);font:600 15px/1 var(--font-mono)}.brand h1{margin:0;font-size:18px}.brand p,.side-note{margin:3px 0 0;color:var(--muted);font-size:12px;line-height:1.45}.nav{display:grid;gap:6px;margin-top:18px}.nav a{display:flex;justify-content:space-between;align-items:center;min-height:38px;padding:0 10px;border:1px solid transparent;border-radius:6px;color:var(--muted)}.nav a.active{color:var(--fg);border-color:var(--border);background:var(--surface)}.ticker-stack{margin-top:18px;padding-top:16px;border-top:1px solid var(--border)}.kicker{color:var(--dim);font:600 11px/1 var(--font-mono);letter-spacing:.08em;text-transform:uppercase}
+    main{padding:18px;min-width:0}.topbar{display:flex;justify-content:space-between;gap:16px;align-items:end;margin-bottom:14px}h2{margin:0;font-size:clamp(26px,3vw,40px);line-height:1.05;letter-spacing:-.02em}.lead{margin:6px 0 0;max-width:82ch;color:var(--muted);font-size:14px;line-height:1.5}.toolbar{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.btn,.select,.input{min-height:36px;padding:0 12px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--fg);font-weight:550}.btn{cursor:pointer}.btn.primary{background:var(--accent);color:oklch(10% .015 250);border-color:transparent}.btn.good{border-color:oklch(45% .12 150);color:var(--success)}.btn.warn{border-color:oklch(52% .13 78);color:var(--warn)}textarea.input{min-height:72px;padding:10px 12px;resize:vertical;width:100%}
+    .summary{display:grid;grid-template-columns:1.2fr repeat(3,1fr);gap:10px;margin-bottom:14px}.stat{padding:13px;border:1px solid var(--border);border-radius:8px;background:var(--surface)}.stat label{color:var(--dim);font:600 11px/1 var(--font-mono);letter-spacing:.08em;text-transform:uppercase}.stat strong{display:block;margin-top:8px;font:650 24px/1 var(--font-mono)}.statusline{display:flex;align-items:center;gap:8px;margin-top:8px;color:var(--muted);font-size:13px}.dot{width:8px;height:8px;border-radius:50%;background:var(--dim);display:inline-block}.dot.run{background:var(--accent);box-shadow:0 0 0 4px oklch(62% .15 235/.14)}.dot.done{background:var(--success)}.dot.idle{background:var(--dim)}
+    .layout{display:grid;grid-template-columns:minmax(320px,.72fr) minmax(0,1.28fr);gap:14px;align-items:start}.panel{border:1px solid var(--border);background:oklch(16% .017 250/.94);border-radius:8px;overflow:hidden}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:46px;padding:12px 14px;border-bottom:1px solid var(--border)}.panel-head h3{margin:0;font-size:15px}.panel-body{padding:14px}.stack{display:grid;gap:12px}.rule{display:grid;grid-template-columns:1fr 92px;gap:10px;align-items:center;padding:10px;border:1px solid var(--border);border-radius:7px;background:var(--surface)}.rule span{display:block;color:var(--muted);font-size:12px;margin-top:3px}.rule input{width:100%;min-width:0;text-align:right;font-family:var(--font-mono)}.source-row{display:grid;grid-template-columns:110px 1fr;gap:10px;align-items:start;padding:10px;border:1px solid var(--border);border-radius:7px;background:var(--surface)}.source-row b{font:600 12px/1 var(--font-mono);color:var(--dim);letter-spacing:.06em;text-transform:uppercase}.source-row input{width:100%}
+    table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:10px;border-bottom:1px solid var(--border);text-align:left;vertical-align:middle}th{color:var(--dim);font:600 11px/1 var(--font-mono);letter-spacing:.08em;text-transform:uppercase}td.num, .num{font-family:var(--font-mono);font-variant-numeric:tabular-nums}.score{display:inline-grid;place-items:center;width:42px;height:28px;border:1px solid var(--border);border-radius:999px;background:var(--surface-2);font:650 13px/1 var(--font-mono)}.pill{display:inline-flex;align-items:center;gap:7px;min-height:24px;padding:0 8px;border:1px solid var(--border);border-radius:999px;background:var(--surface-2);color:var(--muted);font:12px/1 var(--font-mono);white-space:nowrap}.pill.good{color:var(--success)}.pill.warn{color:var(--warn)}.pill.bad{color:var(--danger)}.links{display:flex;gap:8px;flex-wrap:wrap}.links a,.link{color:var(--accent);font-size:12px}.log{display:grid;gap:7px;max-height:188px;overflow:auto}.log div{display:flex;justify-content:space-between;gap:12px;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface)}.log time{color:var(--dim);font-family:var(--font-mono);font-size:11px;white-space:nowrap}.muted{color:var(--muted)}.toast{position:fixed;right:18px;bottom:18px;max-width:360px;padding:12px 14px;border:1px solid var(--border);border-radius:8px;background:oklch(12% .016 250/.96);box-shadow:0 20px 60px rgba(0,0,0,.28);opacity:0;transform:translateY(8px);transition:180ms ease}.toast.show{opacity:1;transform:translateY(0)}
+    @media(max-width:1120px){.app,.layout{grid-template-columns:1fr}.rail{position:static;height:auto}.summary{grid-template-columns:repeat(2,1fr)}.topbar{align-items:start;flex-direction:column}.toolbar{justify-content:flex-start}}@media(max-width:720px){.summary{grid-template-columns:1fr}table{display:block;overflow:auto;white-space:nowrap}.source-row{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="app"><aside class="rail"><div class="brand"><div class="mark">CX</div><div><h1>Codex</h1><p>Portfolio decision engine</p></div></div><nav class="nav" aria-label="Primary"><a href="index.html">Command Center <span>01</span></a><a href="macro.html">Macro Regime <span>02</span></a><a class="active" href="screener.html">Screener <span>03</span></a><a href="watchlists.html">Watchlists <span>04</span></a><a href="ticker-detail.html">Ticker Detail <span>05</span></a><a href="trades.html">Trade Ideas <span>06</span></a><a href="positions.html">Positions <span>07</span></a><a href="alerts.html">Alerts <span>08</span></a></nav><div class="ticker-stack"><div class="kicker">Scout job</div><p class="side-note">Run repeatable ticker scans, document data inputs, and promote only qualified names into watchlists or alerts.</p></div></aside>
+  <main><header class="topbar"><div><div class="kicker">Scout Screener</div><h2>Screener</h2><p class="lead">Background-style ticker scout for finding names that meet valuation, technical, liquidity, and source-quality gates. This prototype runs locally on seed candidates; later the same screen can call mapped data providers.</p></div><div class="toolbar"><select class="select" id="mode"><option value="quality">Quality pullback</option><option value="breakout">Momentum breakout</option><option value="income">Income compounders</option><option value="stress">Stress watch</option></select><button class="btn" id="save">Save Scout</button><button class="btn primary" id="run">Run Scout now</button></div></header>
+    <section class="summary"><div class="stat"><label>Scout state</label><strong id="runState">Idle</strong><div class="statusline"><i class="dot idle" id="stateDot"></i><span id="runMeta">No run in progress</span></div></div><div class="stat"><label>Universe</label><strong id="universeCount">0</strong></div><div class="stat"><label>Qualified</label><strong id="qualifiedCount">0</strong></div><div class="stat"><label>Promoted</label><strong id="promotedCount">0</strong></div></section>
+    <section class="layout">
+      <div class="stack">
+        <section class="panel"><div class="panel-head"><h3>Screen gates</h3><span class="pill" id="modeLabel">quality</span></div><div class="panel-body stack" id="rules"></div></section>
+        <section class="panel"><div class="panel-head"><h3>Source map</h3><span class="pill">editable</span></div><div class="panel-body stack" id="sources"></div></section>
+        <section class="panel"><div class="panel-head"><h3>Scout log</h3><button class="btn" id="clearLog">Clear</button></div><div class="panel-body"><div class="log" id="log"></div></div></section>
+      </div>
+      <section class="panel"><div class="panel-head"><h3>Candidate queue</h3><div class="toolbar"><select class="select" id="filter"><option value="all">All</option><option value="qualified">Qualified</option><option value="watch">Watchlist</option><option value="alert">Alerted</option></select><input class="input" id="search" placeholder="Filter ticker or sector"></div></div><div class="panel-body"><table><thead><tr><th>Score</th><th>Ticker</th><th>Setup</th><th>Valuation</th><th>Technicals</th><th>Source</th><th>Action</th></tr></thead><tbody id="rows"></tbody></table></div></section>
+    </section>
+  </main></div>
+  <div class="toast" id="toast"></div>
+  <script>
+    const STORE = "codex-screener-scout";
+    const seed = {
+      mode: "quality",
+      promoted: [],
+      alerted: [],
+      log: [],
+      rules: {
+        quality: [
+          {key:"minScore", label:"Minimum Scout score", helper:"Candidates below this stay in research only.", value:72},
+          {key:"maxDistance", label:"Max % above Add zone", helper:"Avoid names still far above planned entry.", value:16},
+          {key:"minLiquidity", label:"Minimum 30-day dollar volume ($M)", helper:"Liquidity gate before options or sizing work.", value:150},
+          {key:"minSource", label:"Minimum source confidence", helper:"Reject thin data before chart work.", value:80}
+        ],
+        breakout: [
+          {key:"minScore", label:"Minimum Scout score", helper:"Momentum candidates need stricter confirmation.", value:76},
+          {key:"minRelative", label:"Minimum relative strength", helper:"Ranked 0-100 versus tracked universe.", value:70},
+          {key:"maxDistance", label:"Max % above 60 MA", helper:"Avoid chasing stretched breakouts.", value:10},
+          {key:"minSource", label:"Minimum source confidence", helper:"Reject thin data before chart work.", value:80}
+        ],
+        income: [
+          {key:"minScore", label:"Minimum Scout score", helper:"Income ideas must clear quality and payout gates.", value:70},
+          {key:"minYield", label:"Minimum yield / distribution %", helper:"Manual field from filings or data provider.", value:4},
+          {key:"minCoverage", label:"Minimum coverage ratio", helper:"Coverage before yield.", value:1.15},
+          {key:"minSource", label:"Minimum source confidence", helper:"Reject thin data before chart work.", value:82}
+        ],
+        stress: [
+          {key:"minScore", label:"Minimum stress score", helper:"Higher means more deterioration to monitor.", value:68},
+          {key:"minDebt", label:"Minimum debt / EBITDA", helper:"Flag leverage that could break on refinancing.", value:4},
+          {key:"maxBreadth", label:"Max breadth percentile", helper:"Weak internals before price breaks.", value:45},
+          {key:"minSource", label:"Minimum source confidence", helper:"Reject thin data before alerting.", value:78}
+        ]
+      },
+      sources: [
+        {domain:"Universe", source:"watchlist.seed + manual imports", field:"symbols[]"},
+        {domain:"Price", source:"ohlcv.adjusted", field:"close, ma200, ma60, ma9"},
+        {domain:"Fundamental", source:"filings.normalized", field:"growth, margins, leverage"},
+        {domain:"Options", source:"options.chain", field:"iv_percentile, skew, liquidity"},
+        {domain:"News", source:"manual.feed", field:"x.com, filings, analyst revisions"}
+      ],
+      candidates: [
+        {symbol:"GOOGL", name:"Alphabet", sector:"Communication Services", setup:"Quality pullback near Add zone", price:350, add:313, score:86, distance:11.8, liquidity:920, source:94, relative:63, yield:0, coverage:0, debt:0.7, breadth:61, state:"qualified"},
+        {symbol:"MSFT", name:"Microsoft", sector:"Software", setup:"Knife warning, wait for 200 MA repair", price:367, add:340, score:74, distance:7.9, liquidity:1120, source:96, relative:52, yield:0.8, coverage:0, debt:1.1, breadth:44, state:"qualified"},
+        {symbol:"META", name:"Meta", sector:"Communication Services", setup:"Momentum but above preferred Add", price:610, add:540, score:78, distance:13, liquidity:870, source:93, relative:78, yield:0.3, coverage:0, debt:0.4, breadth:69, state:"qualified"},
+        {symbol:"EPD", name:"Enterprise Products", sector:"Midstream", setup:"Income compounder, watch payout coverage", price:31, add:29, score:82, distance:6.9, liquidity:245, source:88, relative:58, yield:7.1, coverage:1.6, debt:3.2, breadth:57, state:"qualified"},
+        {symbol:"VNOM", name:"Viper Energy", sector:"Energy royalties", setup:"Royalty income with commodity beta", price:48, add:43, score:77, distance:11.6, liquidity:180, source:86, relative:64, yield:5.8, coverage:1.35, debt:1.8, breadth:59, state:"qualified"},
+        {symbol:"HYG", name:"High Yield ETF", sector:"Credit proxy", setup:"Stress hedge monitor, not equity entry", price:79, add:0, score:69, distance:0, liquidity:740, source:91, relative:39, yield:5.9, coverage:0, debt:0, breadth:41, state:"research"},
+        {symbol:"KRE", name:"Regional Bank ETF", sector:"Financials", setup:"Stress watch for credit tightening", price:52, add:47, score:71, distance:10.6, liquidity:330, source:84, relative:42, yield:3.2, coverage:0, debt:4.5, breadth:38, state:"research"},
+        {symbol:"RDW", name:"Redwire", sector:"Space infrastructure", setup:"Spec sleeve only, liquidity constrained", price:18, add:15, score:66, distance:20, liquidity:44, source:76, relative:71, yield:0, coverage:0, debt:5.2, breadth:48, state:"research"},
+        {symbol:"ARM", name:"Arm", sector:"Semiconductors", setup:"Excellent business, valuation reject", price:160, add:0, score:54, distance:0, liquidity:510, source:89, relative:57, yield:0, coverage:0, debt:0.2, breadth:53, state:"reject"},
+        {symbol:"TSLA", name:"Tesla", sector:"Autos", setup:"Too-hard flag, source volatility high", price:330, add:0, score:49, distance:0, liquidity:2100, source:87, relative:46, yield:0, coverage:0, debt:1.0, breadth:35, state:"reject"}
+      ]
+    };
+    let state = load();
+    let timer = null;
+    function clone(x){ return JSON.parse(JSON.stringify(x)); }
+    function load(){ try { return {...clone(seed), ...JSON.parse(localStorage.getItem(STORE) || "{}")}; } catch (_) { return clone(seed); } }
+    function save(){ localStorage.setItem(STORE, JSON.stringify(state)); }
+    function activeRules(){ return state.rules[state.mode] || state.rules.quality; }
+    function qualifies(c){
+      const rules = Object.fromEntries(activeRules().map(r => [r.key, Number(r.value)]));
+      if (c.source < (rules.minSource || 0)) return false;
+      if (c.score < (rules.minScore || 0)) return false;
+      if (state.mode === "quality") return c.distance <= rules.maxDistance && c.liquidity >= rules.minLiquidity;
+      if (state.mode === "breakout") return c.relative >= rules.minRelative && c.distance <= rules.maxDistance;
+      if (state.mode === "income") return c.yield >= rules.minYield && c.coverage >= rules.minCoverage;
+      if (state.mode === "stress") return c.debt >= rules.minDebt || c.breadth <= rules.maxBreadth;
+      return true;
+    }
+    function scoreClass(c){ return qualifies(c) ? "good" : c.score >= 65 ? "warn" : "bad"; }
+    function statusText(c){ if (state.promoted.includes(c.symbol)) return "watch"; if (state.alerted.includes(c.symbol)) return "alert"; return qualifies(c) ? "qualified" : c.state; }
+    function filtered(){
+      const q = document.getElementById("search").value.trim().toLowerCase();
+      const f = document.getElementById("filter").value;
+      return state.candidates.filter(c => {
+        const text = `${c.symbol} ${c.name} ${c.sector}`.toLowerCase();
+        const status = statusText(c);
+        return (!q || text.includes(q)) && (f === "all" || status === f || (f === "qualified" && qualifies(c)));
+      }).sort((a,b) => Number(qualifies(b)) - Number(qualifies(a)) || b.score - a.score);
+    }
+    function render(){
+      document.getElementById("mode").value = state.mode;
+      document.getElementById("modeLabel").textContent = state.mode;
+      document.getElementById("universeCount").textContent = state.candidates.length;
+      document.getElementById("qualifiedCount").textContent = state.candidates.filter(qualifies).length;
+      document.getElementById("promotedCount").textContent = state.promoted.length;
+      renderRules();
+      renderSources();
+      renderRows();
+      renderLog();
+    }
+    function renderRules(){
+      document.getElementById("rules").innerHTML = activeRules().map((r,i) => `<label class="rule"><span><strong>${r.label}</strong><span>${r.helper}</span></span><input data-i="${i}" type="number" step=".01" value="${r.value}"></label>`).join("");
+      document.querySelectorAll("#rules input").forEach(input => input.addEventListener("input", e => {
+        activeRules()[Number(e.target.dataset.i)].value = e.target.value;
+        save();
+        renderRows();
+        document.getElementById("qualifiedCount").textContent = state.candidates.filter(qualifies).length;
+      }));
+    }
+    function renderSources(){
+      document.getElementById("sources").innerHTML = state.sources.map((s,i) => `<div class="source-row"><b>${s.domain}</b><div><input class="input" data-i="${i}" data-k="source" value="${s.source}"><input class="input" data-i="${i}" data-k="field" value="${s.field}" style="margin-top:8px"></div></div>`).join("");
+      document.querySelectorAll("#sources input").forEach(input => input.addEventListener("input", e => {
+        state.sources[Number(e.target.dataset.i)][e.target.dataset.k] = e.target.value;
+        save();
+      }));
+    }
+    function renderRows(){
+      const rows = filtered().map(c => `<tr><td><span class="score ${scoreClass(c)}">${c.score}</span></td><td><strong class="num">${c.symbol}</strong><br><span class="muted">${c.name}</span></td><td>${c.setup}<br><span class="pill ${scoreClass(c)}">${statusText(c)}</span></td><td class="num">${c.add ? ((c.price - c.add) / c.add * 100).toFixed(1) + "% above Add" : "No Add zone"}<br><span class="muted">${c.sector}</span></td><td><span class="num">RS ${c.relative}</span><br><span class="muted">Breadth ${c.breadth}</span></td><td><span class="num">${c.source}%</span><br><span class="muted">${c.liquidity}M vol</span></td><td><div class="links"><a href="chart.html?symbol=${c.symbol}">chart</a><a href="ticker-detail.html?symbol=${c.symbol}">detail</a><a href="trades.html?symbol=${c.symbol}">idea</a><button class="btn good" data-act="watch" data-symbol="${c.symbol}">watch</button><button class="btn warn" data-act="alert" data-symbol="${c.symbol}">alert</button></div></td></tr>`).join("");
+      document.getElementById("rows").innerHTML = rows || `<tr><td colspan="7" class="muted">No candidates match this filter.</td></tr>`;
+      document.querySelectorAll("[data-act]").forEach(btn => btn.addEventListener("click", e => promote(e.currentTarget.dataset.symbol, e.currentTarget.dataset.act)));
+    }
+    function renderLog(){
+      document.getElementById("log").innerHTML = state.log.slice(0,12).map(item => `<div><span>${item.copy}</span><time>${item.time}</time></div>`).join("") || `<div><span>No Scout runs yet.</span><time>local</time></div>`;
+    }
+    function setRunState(label, copy, cls){
+      document.getElementById("runState").textContent = label;
+      document.getElementById("runMeta").textContent = copy;
+      document.getElementById("stateDot").className = `dot ${cls}`;
+    }
+    function addLog(copy){
+      const time = new Date().toLocaleString([], {month:"short", day:"2-digit", hour:"2-digit", minute:"2-digit"});
+      state.log.unshift({copy, time});
+      state.log = state.log.slice(0,24);
+      save();
+      renderLog();
+    }
+    function runScout(){
+      clearTimeout(timer);
+      setRunState("Running", "Scanning mapped universe against current gates", "run");
+      addLog(`Started ${state.mode} Scout run`);
+      timer = setTimeout(() => {
+        const count = state.candidates.filter(qualifies).length;
+        setRunState("Complete", `${count} candidates qualified; review queue refreshed`, "done");
+        addLog(`Completed run: ${count} qualified candidates`);
+        renderRows();
+      }, 900);
+    }
+    function promote(symbol, action){
+      const list = action === "watch" ? state.promoted : state.alerted;
+      if (!list.includes(symbol)) list.push(symbol);
+      save();
+      addLog(`${symbol} promoted to ${action === "watch" ? "Watchlists" : "Alerts"}`);
+      toast(`${symbol} routed to ${action === "watch" ? "Watchlists 04" : "Alerts 08"}. This is saved locally for this prototype.`);
+      render();
+    }
+    function toast(copy){
+      const el = document.getElementById("toast");
+      el.textContent = copy;
+      el.classList.add("show");
+      setTimeout(() => el.classList.remove("show"), 2600);
+    }
+    document.getElementById("mode").addEventListener("change", e => { state.mode = e.target.value; save(); render(); });
+    document.getElementById("filter").addEventListener("change", renderRows);
+    document.getElementById("search").addEventListener("input", renderRows);
+    document.getElementById("run").addEventListener("click", runScout);
+    document.getElementById("save").addEventListener("click", () => { save(); toast("Scout configuration saved locally."); });
+    document.getElementById("clearLog").addEventListener("click", () => { state.log = []; save(); renderLog(); });
+    render();
+  </script>
+</body>
+</html>

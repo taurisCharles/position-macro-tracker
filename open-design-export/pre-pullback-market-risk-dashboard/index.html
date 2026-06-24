@@ -1,0 +1,1067 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex Portfolio Control Panel</title>
+  <style>
+    :root {
+      --bg: oklch(13% 0.018 250);
+      --surface: oklch(18% 0.018 250);
+      --surface-2: oklch(22% 0.018 250);
+      --fg: oklch(93% 0.01 250);
+      --muted: oklch(68% 0.014 250);
+      --dim: oklch(50% 0.014 250);
+      --border: oklch(31% 0.014 250);
+      --accent: oklch(62% 0.15 235);
+      --success: oklch(67% 0.16 150);
+      --warn: oklch(77% 0.16 78);
+      --danger: oklch(64% 0.19 25);
+      --watch: oklch(68% 0.12 235);
+      --font-display: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", system-ui, sans-serif;
+      --font-body: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", system-ui, sans-serif;
+      --font-mono: "JetBrains Mono", "IBM Plex Mono", ui-monospace, Menlo, monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html { background: var(--bg); color: var(--fg); color-scheme: dark; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font-body);
+      background:
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(255,255,255,0.018) 1px, transparent 1px),
+        var(--bg);
+      background-size: 48px 48px;
+      letter-spacing: 0;
+    }
+    button, input, textarea, select { font: inherit; }
+    a { color: inherit; text-decoration: none; }
+
+    .app {
+      display: grid;
+      grid-template-columns: 248px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+    .rail {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 18px 14px;
+      border-right: 1px solid var(--border);
+      background: oklch(11% 0.016 250 / 0.96);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 8px 18px;
+      border-bottom: 1px solid var(--border);
+    }
+    .mark {
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--accent);
+      font: 600 15px/1 var(--font-mono);
+    }
+    .brand h1 {
+      margin: 0;
+      font: 600 18px/1.1 var(--font-display);
+      letter-spacing: -0.01em;
+    }
+    .brand p, .side-note {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font: 12px/1.45 var(--font-body);
+    }
+    .nav {
+      display: grid;
+      gap: 6px;
+      margin-top: 18px;
+    }
+    .nav a {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 38px;
+      padding: 0 10px;
+      color: var(--muted);
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: left;
+    }
+    .nav a.active {
+      color: var(--fg);
+      border-color: var(--border);
+      background: var(--surface);
+    }
+    .ticker-stack {
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .kicker {
+      color: var(--dim);
+      font: 600 11px/1 var(--font-mono);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .side-note { margin-top: 12px; }
+
+    main { min-width: 0; padding: 18px; }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+    .topbar h2 {
+      margin: 0;
+      font: 600 clamp(24px, 3vw, 40px)/1.05 var(--font-display);
+      letter-spacing: -0.02em;
+    }
+    .topbar p {
+      max-width: 72ch;
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .btn {
+      min-height: 36px;
+      padding: 0 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--fg);
+      cursor: pointer;
+      font-weight: 550;
+      letter-spacing: 0.02em;
+    }
+    .btn.primary { background: var(--accent); color: oklch(10% 0.015 250); border-color: transparent; }
+    .btn:focus, input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(420px, 0.9fr);
+      gap: 14px;
+      align-items: start;
+    }
+    .panel {
+      border: 1px solid var(--border);
+      background: oklch(16% 0.017 250 / 0.94);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 46px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .panel-head h3 {
+      margin: 0;
+      font: 600 15px/1.15 var(--font-display);
+      letter-spacing: -0.01em;
+    }
+    .panel-body { padding: 14px; }
+
+    .regime {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+    .regime-card {
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: linear-gradient(180deg, var(--surface), oklch(15% 0.016 250));
+    }
+    .regime-title {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .regime-title strong {
+      font: 600 46px/1 var(--font-display);
+      letter-spacing: -0.03em;
+    }
+    .regime-title span {
+      font: 600 13px/1 var(--font-mono);
+      color: var(--warn);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .gate-meter {
+      margin: 16px 0 12px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+    }
+    .gate-meter i {
+      height: 9px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+    }
+    .gate-meter i.on { background: var(--warn); border-color: transparent; }
+    .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+    .chip, .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 24px;
+      padding: 0 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--muted);
+      background: oklch(20% 0.015 250);
+      font: 12px/1 var(--font-mono);
+      white-space: nowrap;
+    }
+    .pill.good { color: var(--success); }
+    .pill.warn { color: var(--warn); }
+    .pill.bad { color: var(--danger); }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--dim); display: inline-block; }
+    .dot.good { background: var(--success); }
+    .dot.warn { background: var(--warn); }
+    .dot.bad { background: var(--danger); }
+    .snapshot {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .stat {
+      padding: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 6px;
+    }
+    .stat label {
+      display: block;
+      color: var(--dim);
+      font: 600 11px/1 var(--font-mono);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .stat strong {
+      display: block;
+      margin-top: 8px;
+      font: 600 24px/1 var(--font-mono);
+      letter-spacing: -0.02em;
+    }
+    .barbell {
+      height: 10px;
+      margin-top: 12px;
+      background: linear-gradient(90deg, var(--success) 0 46%, var(--accent) 46% 58%, var(--warn) 58% 100%);
+      border-radius: 999px;
+    }
+
+    .watch-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(82px, 1fr));
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .watch-tile {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 6px;
+      min-height: 62px;
+      padding: 9px;
+      cursor: pointer;
+      text-align: left;
+      color: var(--fg);
+    }
+    .watch-tile:focus-visible, tr:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .watch-tile.active { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+    .watch-tile strong { display: block; font: 600 18px/1 var(--font-mono); }
+    .watch-tile span { display: block; margin-top: 6px; color: var(--muted); font-size: 12px; }
+    .table-wrap { overflow: auto; border: 1px solid var(--border); border-radius: 6px; }
+    table { width: 100%; border-collapse: collapse; min-width: 1080px; }
+    th, td { padding: 10px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: middle; }
+    th {
+      position: sticky;
+      top: 0;
+      background: oklch(15% 0.016 250);
+      color: var(--dim);
+      font: 600 11px/1 var(--font-mono);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      z-index: 1;
+    }
+    td { color: var(--fg); font-size: 13px; }
+    tr { cursor: pointer; }
+    tr.active td { background: oklch(22% 0.035 235 / 0.62); }
+    .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+    .gate-dots { display: flex; gap: 5px; }
+    .spark {
+      width: 112px;
+      height: 32px;
+      display: block;
+    }
+
+    .chart-panel { position: sticky; top: 18px; }
+    .ticker-head {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: start;
+    }
+    .ticker-head h3 {
+      margin: 0;
+      font: 600 28px/1 var(--font-mono);
+      letter-spacing: -0.02em;
+    }
+    .ticker-head p { margin: 6px 0 0; color: var(--muted); font-size: 13px; line-height: 1.45; max-width: 60ch; }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 32px;
+      padding: 0 9px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface);
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .toggle input { accent-color: var(--accent); }
+    .chart {
+      margin-top: 14px;
+      border: 1px solid var(--border);
+      background: oklch(10% 0.014 250);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    svg { display: block; width: 100%; height: auto; }
+    .subgrid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .mini-panel {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 11px;
+      background: var(--surface);
+      min-width: 0;
+    }
+    .mini-panel h4 {
+      margin: 0 0 9px;
+      color: var(--muted);
+      font: 600 11px/1 var(--font-mono);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .ladder { display: grid; gap: 7px; }
+    .ladder-row {
+      display: grid;
+      grid-template-columns: 58px 1fr 56px;
+      gap: 8px;
+      align-items: center;
+      font-size: 12px;
+    }
+    .track { height: 7px; background: oklch(28% 0.014 250); border-radius: 999px; overflow: hidden; }
+    .track span { display: block; height: 100%; background: var(--accent); border-radius: inherit; }
+    .field-row { display: grid; grid-template-columns: 1fr 96px; gap: 8px; align-items: center; margin-top: 8px; }
+    .field-row label { color: var(--muted); font-size: 12px; }
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      background: oklch(12% 0.014 250);
+      color: var(--fg);
+      padding: 8px;
+      min-height: 34px;
+    }
+    textarea { resize: vertical; min-height: 74px; line-height: 1.45; }
+    .alert-list, .source-list, .options-list { display: grid; gap: 8px; }
+    .alert {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 8px;
+      align-items: start;
+      padding: 9px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: oklch(14% 0.014 250);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    .source-row {
+      display: grid;
+      grid-template-columns: 110px 1fr 110px;
+      gap: 8px;
+      align-items: center;
+    }
+    .source-row a { color: var(--accent); font: 12px/1.2 var(--font-mono); }
+    .cheap-label { font: 600 12px/1 var(--font-mono); }
+    .cheap-label.cheap { color: var(--success); }
+    .cheap-label.fair { color: var(--warn); }
+    .cheap-label.expensive { color: var(--danger); }
+    .feed-list { display: grid; gap: 8px; }
+    .feed-item {
+      display: grid;
+      gap: 5px;
+      padding: 9px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: oklch(14% 0.014 250);
+    }
+    .feed-item a {
+      color: var(--fg);
+      font-size: 12px;
+      line-height: 1.35;
+      text-decoration: none;
+    }
+    .feed-item a:hover { color: var(--accent); }
+    .feed-meta {
+      color: var(--dim);
+      font: 11px/1 var(--font-mono);
+      letter-spacing: 0.02em;
+    }
+    .consensus {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+    }
+    .context-menu {
+      position: fixed;
+      z-index: 20;
+      display: none;
+      min-width: 220px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: oklch(12% 0.014 250);
+      box-shadow: 0 18px 44px rgba(0,0,0,.34);
+      padding: 6px;
+    }
+    .context-menu.open { display: block; }
+    .context-menu button {
+      width: 100%;
+      min-height: 34px;
+      border: 0;
+      border-radius: 4px;
+      background: transparent;
+      color: var(--fg);
+      text-align: left;
+      cursor: pointer;
+      padding: 0 9px;
+      font-size: 12px;
+    }
+    .context-menu button:hover { background: var(--surface); }
+    .context-symbol {
+      padding: 7px 9px 9px;
+      color: var(--muted);
+      font: 11px/1 var(--font-mono);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 4px;
+    }
+    .footer-edit {
+      display: grid;
+      grid-template-columns: 180px minmax(0, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .disclaimer {
+      margin-top: 14px;
+      color: var(--dim);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 1180px) {
+      .app { grid-template-columns: 1fr; }
+      .rail { position: static; height: auto; }
+      .dashboard, .regime { grid-template-columns: 1fr; }
+      .chart-panel { position: static; }
+    }
+    @media (max-width: 720px) {
+      main { padding: 12px; }
+      .topbar, .ticker-head, .footer-edit { grid-template-columns: 1fr; display: grid; }
+      .actions { justify-content: stretch; }
+      .actions .btn { flex: 1; }
+      .snapshot, .watch-grid, .subgrid { grid-template-columns: 1fr; }
+      .source-row { grid-template-columns: 1fr; }
+      .regime-title { align-items: start; flex-direction: column; }
+      .regime-title strong { font-size: 36px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="rail">
+      <div class="brand">
+        <div class="mark">CX</div>
+        <div>
+          <h1>Codex</h1>
+          <p>Portfolio decision engine</p>
+        </div>
+      </div>
+      <nav class="nav" aria-label="Primary">
+        <a class="active" href="index.html">Command Center <span>01</span></a>
+        <a href="macro.html">Macro Regime <span>02</span></a>
+        <a href="screener.html">Screener <span>03</span></a>
+        <a href="watchlists.html">Watchlists <span>04</span></a>
+        <a href="ticker-detail.html">Ticker Detail <span>05</span></a>
+        <a href="trades.html">Trade Ideas <span>06</span></a>
+        <a href="positions.html">Positions <span>07</span></a>
+        <a href="alerts.html">Alerts <span>08</span></a>
+      </nav>
+      <div class="ticker-stack">
+        <div class="kicker">Framework</div>
+        <p class="side-note">Fundamentals choose. Macro sizes. Technicals time. Monitoring protects.</p>
+      </div>
+      <div class="ticker-stack">
+        <div class="kicker">Data posture</div>
+        <p class="side-note">Sources are editable and mapped by field. No live fetches occur in this prototype.</p>
+      </div>
+    </aside>
+
+    <main>
+      <header class="topbar">
+        <div>
+          <h2>Command Center</h2>
+          <p>Main control panel for deployment gates, watchlist state, entry timing, options context, and source remapping. Built for monthly review plus fast event checks.</p>
+        </div>
+        <div class="actions">
+          <button class="btn" id="exportBtn" type="button">Export JSON</button>
+          <button class="btn" id="resetBtn" type="button">Reset Seeds</button>
+          <button class="btn primary" id="saveBtn" type="button">Save Local</button>
+        </div>
+      </header>
+
+      <section class="regime" aria-label="Risk regime">
+        <div class="regime-card">
+          <div class="regime-title">
+            <div>
+              <span id="regimeLabel">Patient — nibble only</span>
+              <strong><span id="gateCount">1</span> / 3 Deploy Gates</strong>
+            </div>
+            <span><span class="dot good" id="killDot"></span> Test-0 OK</span>
+          </div>
+          <div class="gate-meter" aria-label="Deploy gate meter">
+            <i class="on"></i><i></i><i></i>
+          </div>
+          <div class="chips">
+            <span class="pill bad">CAPE <span class="num" data-field="cape">41</span></span>
+            <span class="pill bad">Buffett <span class="num" data-field="buffett">233%</span></span>
+            <span class="pill warn">Fed-adjusted <span class="num" data-field="fedAdjusted">192%</span></span>
+            <span class="pill good">Kill switch pass</span>
+          </div>
+        </div>
+        <div class="regime-card">
+          <div class="snapshot">
+            <div class="stat"><label>Portfolio</label><strong class="num">$4.8M</strong></div>
+            <div class="stat"><label>Cash</label><strong class="num">40%</strong></div>
+            <div class="stat"><label>Spec cap</label><strong class="num">5%</strong></div>
+          </div>
+          <div class="barbell" title="Safe core, speculative tail, cash"></div>
+          <p class="disclaimer">Personal monitoring tool, not investment advice. Thresholds are starting heuristics and should be tuned.</p>
+        </div>
+      </section>
+
+      <section class="dashboard">
+        <div>
+          <section class="panel">
+            <div class="panel-head">
+              <h3>Watchlist Heat Strip</h3>
+              <span class="chip">Click ticker to drive master chart</span>
+            </div>
+            <div class="panel-body">
+              <div class="watch-grid" id="watchTiles"></div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Ticker</th><th>State</th><th>Gates</th><th>Tier</th><th>Price</th><th>Add</th><th>Truck</th><th>Analyst</th><th>Confluence</th><th>Kill</th><th>Spark</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tickerRows"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel" style="margin-top:14px">
+            <div class="panel-head">
+              <h3>Data Source Registry & Remap</h3>
+              <span class="chip">Persisted locally</span>
+            </div>
+            <div class="panel-body">
+              <div class="source-list" id="sourceList"></div>
+              <div class="footer-edit">
+                <input id="lastUpdated" type="date" aria-label="Last updated">
+                <textarea id="notes" placeholder="Monthly notes, source caveats, remap decisions, and threshold changes."></textarea>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <aside class="panel chart-panel">
+          <div class="panel-head">
+            <h3>Master / Slave Chart Control</h3>
+            <span class="chip" id="selectedChip">GOOGL</span>
+          </div>
+          <div class="panel-body">
+            <div class="ticker-head">
+              <div>
+                <h3 id="tickerTitle">GOOGL</h3>
+                <p id="tickerThesis"></p>
+              </div>
+              <span class="pill" id="tickerState"></span>
+            </div>
+            <div class="controls" aria-label="Chart layers">
+              <label class="toggle"><input type="checkbox" data-layer="ma" checked> 2Y · 200/60/9 MA</label>
+              <label class="toggle"><input type="checkbox" data-layer="fib" checked> Fibonacci</label>
+              <label class="toggle"><input type="checkbox" data-layer="rsi" checked> RSI slave</label>
+              <label class="toggle"><input type="checkbox" data-layer="options" checked> Options slave</label>
+            </div>
+            <div class="chart">
+              <svg id="chartSvg" viewBox="0 0 760 390" role="img" aria-label="Ticker price chart with entry zones"></svg>
+            </div>
+            <div class="subgrid">
+              <div class="mini-panel">
+                <h4>Entry Ladder</h4>
+                <div class="ladder" id="ladder"></div>
+                <div class="consensus" id="analystConsensus"></div>
+              </div>
+              <div class="mini-panel">
+                <h4>Four Gates</h4>
+                <div class="gate-dots" id="gateSummary"></div>
+                <div id="gateText" class="disclaimer"></div>
+              </div>
+              <div class="mini-panel" id="optionsPanel">
+                <h4>Options Context</h4>
+                <div class="options-list" id="optionsList"></div>
+              </div>
+              <div class="mini-panel">
+                <h4>Active Alerts</h4>
+                <div class="alert-list" id="alerts"></div>
+              </div>
+              <div class="mini-panel">
+                <h4>Ticker Feed</h4>
+                <div class="feed-list" id="tickerFeed"></div>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </section>
+    </main>
+  </div>
+  <div class="context-menu" id="tickerMenu" role="menu" aria-hidden="true">
+    <div class="context-symbol" id="contextSymbol">Ticker</div>
+    <button type="button" id="openLargeChart">Open large chart workspace</button>
+    <button type="button" id="contextSelect">Select in command center</button>
+  </div>
+
+  <script>
+    const STORE_KEY = "codex-control-panel-v1";
+    const seed = {
+      selected: "GOOGL",
+      layers: { ma: true, fib: true, rsi: true, options: true },
+      lastUpdated: "2026-06-15",
+      notes: "Track divergence between macro gates and single-name entry zones. Document any source remap before changing thresholds.",
+      sources: {
+        macro: { label: "Macro regime", provider: "FRED", field: "fred.series", url: "https://fred.stlouisfed.org/" },
+        price: { label: "Price / technicals", provider: "Market data", field: "ohlcv.adjusted", url: "https://www.nasdaq.com/market-activity/stocks" },
+        fundamentals: { label: "Fundamentals", provider: "Company filings", field: "sec.xbrl", url: "https://www.sec.gov/edgar/search/" },
+        options: { label: "Options chain", provider: "Broker / OPRA", field: "options.chain", url: "https://www.cboe.com/" }
+      },
+      options: {
+        SPX: 42, QQQ: 38, VIX: 27, HYG: 34, "Single-name basket": 55
+      }
+    };
+    const tickers = [
+      { symbol:"GOOGL", name:"Alphabet", state:"Entry-Zone", tier:"A", price:350, fair:360, add:313, truck:270, kill:"OK", confluence:true, thesis:"AI talent churn is monitored, but core ad/search economics remain knowable. Confluence near $312 combines Fib 38.2% and fundamental Add.", gates:["good","good","good","good"], data:[318,326,333,341,356,348,339,331,322,314,327,343,350], rsi:48 },
+      { symbol:"META", name:"Meta", state:"Watchlist", tier:"A", price:610, fair:620, add:540, truck:450, kill:"OK", confluence:false, thesis:"Quality compounder still above preferred Add zone; wait for pullback or support confirmation.", gates:["good","good","good","good"], data:[520,542,558,580,604,625,641,636,622,610,604,612,610], rsi:55 },
+      { symbol:"MSFT", name:"Microsoft", state:"Knife warning", tier:"A", price:367, fair:410, add:340, truck:295, kill:"Armed", confluence:false, thesis:"Below falling 200-day; no technical analysis until support stabilizes.", gates:["good","good","warn","good"], data:[430,424,410,398,386,379,371,365,359,362,366,370,367], rsi:39 },
+      { symbol:"AAPL", name:"Apple", state:"Needs pullback", tier:"B", price:297, fair:235, add:228, truck:196, kill:"OK", confluence:false, thesis:"Price-implied belief is demanding for single-digit growth; valuation gate remains caution.", gates:["good","good","warn","good"], data:[238,244,251,260,271,282,291,305,314,309,302,298,297], rsi:61 },
+      { symbol:"NVDA", name:"Nvidia", state:"Drift", tier:"C", price:209, fair:160, add:145, truck:120, kill:"Review", confluence:false, thesis:"Forward P/E depends on peak-cyclical earnings basis; haircut mode pushes entry into $120-150.", gates:["good","warn","bad","warn"], data:[142,155,171,188,204,224,238,229,217,211,205,212,209], rsi:67 },
+      { symbol:"EPD", name:"Enterprise Products", state:"Owned", tier:"A", price:31, fair:34, add:29, truck:26, kill:"OK", confluence:true, thesis:"In-circle income holding with healthy coverage and roughly 6% yield.", gates:["good","good","good","good"], data:[26,27,28,29,30,31,32,31,30,30,31,31,31], rsi:52 },
+      { symbol:"VNOM", name:"Viper Energy", state:"Owned", tier:"A", price:48, fair:52, add:43, truck:38, kill:"OK", confluence:false, thesis:"Royalty exposure remains in-circle; watch commodity sensitivity and payout coverage.", gates:["good","good","good","good"], data:[38,40,43,45,47,49,51,50,49,47,46,48,48], rsi:50 },
+      { symbol:"TSLA", name:"Tesla", state:"Rejected", tier:"D", price:330, fair:120, add:0, truck:0, kill:"Too hard", confluence:false, thesis:"Too-hard flag; price-implied belief remains heroic. Technical entry disabled while rejected.", gates:["bad","warn","bad","bad"], data:[260,275,292,318,346,372,355,338,321,312,326,334,330], rsi:58 },
+      { symbol:"ARM", name:"Arm", state:"Rejected", tier:"D", price:160, fair:70, add:0, truck:0, kill:"Too hard", confluence:false, thesis:"Pay-for-perfection valuation and high beta keep it outside the core process.", gates:["warn","warn","bad","bad"], data:[92,104,118,133,151,171,180,176,168,162,156,159,160], rsi:62 },
+      { symbol:"RDW", name:"Redwire", state:"Spec Sleeve", tier:"S", price:18, fair:0, add:15, truck:12, kill:"Premortem", confluence:false, thesis:"Speculative sleeve only: survival weak-pass, convergence improving, asymmetry documented.", gates:["warn","good","warn","good"], data:[8,9,10,12,15,18,22,20,17,16,18,19,18], rsi:57 }
+    ];
+    const tickerMeta = {
+      GOOGL: { analyst:{rating:"Buy", target:395, spread:"+13%"}, news:[["x.com list","AI capex chatter and search share debate remain the high-signal feed items.","https://x.com/search?q=GOOGL%20AI%20capex&src=typed_query"],["SEC filings","Watch 10-Q capex language and TAC trend.","https://www.sec.gov/edgar/search/"],["Analyst notes","Consensus target revision feed for ad/search checks.","https://www.nasdaq.com/market-activity/stocks/googl/analyst-research"]] },
+      META: { analyst:{rating:"Buy", target:690, spread:"+13%"}, news:[["x.com list","Track Reels monetization, AI infra spend, and Reality Labs burn.","https://x.com/search?q=META%20earnings%20AI&src=typed_query"],["NASDAQ","Consensus and estimate revision board.","https://www.nasdaq.com/market-activity/stocks/meta/analyst-research"],["SEC filings","Quarterly capex and buyback cadence.","https://www.sec.gov/edgar/search/"]] },
+      MSFT: { analyst:{rating:"Buy", target:455, spread:"+24%"}, news:[["x.com list","Azure growth and AI margin debate.","https://x.com/search?q=MSFT%20Azure%20AI%20margin&src=typed_query"],["NASDAQ","Analyst consensus and target drift.","https://www.nasdaq.com/market-activity/stocks/msft/analyst-research"],["SEC filings","Cloud segment and capex commentary.","https://www.sec.gov/edgar/search/"]] },
+      AAPL: { analyst:{rating:"Hold", target:240, spread:"-19%"}, news:[["x.com list","iPhone cycle, services growth, and China demand checks.","https://x.com/search?q=AAPL%20iPhone%20China%20demand&src=typed_query"],["NASDAQ","Consensus target versus current price.","https://www.nasdaq.com/market-activity/stocks/aapl/analyst-research"],["SEC filings","Services margin and buyback pace.","https://www.sec.gov/edgar/search/"]] },
+      NVDA: { analyst:{rating:"Buy", target:190, spread:"-9%"}, news:[["x.com list","AI accelerator demand, order pull-forward, and hyperscaler capex.","https://x.com/search?q=NVDA%20hyperscaler%20capex&src=typed_query"],["NASDAQ","Consensus and estimate revisions.","https://www.nasdaq.com/market-activity/stocks/nvda/analyst-research"],["SEC filings","Customer concentration and supply commentary.","https://www.sec.gov/edgar/search/"]] },
+      EPD: { analyst:{rating:"Buy", target:36, spread:"+16%"}, news:[["x.com list","Midstream spreads, distribution coverage, and NGL volumes.","https://x.com/search?q=EPD%20distribution%20coverage&src=typed_query"],["NASDAQ","Analyst consensus target.","https://www.nasdaq.com/market-activity/stocks/epd/analyst-research"],["SEC filings","Coverage and leverage updates.","https://www.sec.gov/edgar/search/"]] },
+      VNOM: { analyst:{rating:"Buy", target:55, spread:"+15%"}, news:[["x.com list","Permian royalty volumes and commodity sensitivity.","https://x.com/search?q=VNOM%20royalty%20Permian&src=typed_query"],["NASDAQ","Consensus and target drift.","https://www.nasdaq.com/market-activity/stocks/vnom/analyst-research"],["SEC filings","Payout and production updates.","https://www.sec.gov/edgar/search/"]] },
+      TSLA: { analyst:{rating:"Hold", target:260, spread:"-21%"}, news:[["x.com list","Delivery revisions, FSD claims, and margin debate.","https://x.com/search?q=TSLA%20deliveries%20margin&src=typed_query"],["NASDAQ","Consensus target and revisions.","https://www.nasdaq.com/market-activity/stocks/tsla/analyst-research"],["SEC filings","Auto gross margin and financing exposure.","https://www.sec.gov/edgar/search/"]] },
+      ARM: { analyst:{rating:"Hold", target:120, spread:"-25%"}, news:[["x.com list","Royalty growth, AI licensing, and valuation debate.","https://x.com/search?q=ARM%20royalty%20AI%20valuation&src=typed_query"],["NASDAQ","Consensus target and estimate revisions.","https://www.nasdaq.com/market-activity/stocks/arm/analyst-research"],["SEC filings","Licensing and customer concentration.","https://www.sec.gov/edgar/search/"]] },
+      RDW: { analyst:{rating:"Spec", target:22, spread:"+22%"}, news:[["x.com list","Space infrastructure backlog and dilution risk.","https://x.com/search?q=RDW%20backlog%20space&src=typed_query"],["NASDAQ","Thin-coverage consensus snapshot.","https://www.nasdaq.com/market-activity/stocks/rdw/analyst-research"],["SEC filings","Liquidity, backlog, and going-concern language.","https://www.sec.gov/edgar/search/"]] }
+    };
+    tickers.forEach(t => Object.assign(t, tickerMeta[t.symbol] || { analyst:{rating:"—", target:0, spread:"—"}, news:[] }));
+
+    let state = load();
+    function cloneSeed() {
+      return JSON.parse(JSON.stringify(seed));
+    }
+    function mergeState(base, saved) {
+      return {
+        ...base,
+        ...saved,
+        layers: { ...base.layers, ...(saved.layers || {}) },
+        sources: { ...base.sources, ...(saved.sources || {}) },
+        options: { ...base.options, ...(saved.options || {}) }
+      };
+    }
+    function load() {
+      try { return mergeState(cloneSeed(), JSON.parse(localStorage.getItem(STORE_KEY) || "{}")); }
+      catch (_) { return cloneSeed(); }
+    }
+    function persist() { localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
+    function bySymbol(symbol) { return tickers.find(t => t.symbol === symbol) || tickers[0]; }
+    function statusClass(value) { return value === "bad" ? "bad" : value === "warn" ? "warn" : "good"; }
+    function cheapClass(v) { return v < 30 ? "cheap" : v <= 60 ? "fair" : "expensive"; }
+    function cheapLabel(v) { return v < 30 ? "cheap" : v <= 60 ? "fair" : "expensive"; }
+    function lastTradingDates(count) {
+      const dates = [];
+      const d = new Date();
+      d.setHours(12, 0, 0, 0);
+      while (dates.length < count) {
+        const day = d.getDay();
+        if (day !== 0 && day !== 6) dates.unshift(new Date(d));
+        d.setDate(d.getDate() - 1);
+      }
+      return dates;
+    }
+    function generateTwoYearSeries(t) {
+      const count = 504;
+      const dates = lastTradingDates(count);
+      const anchors = t.data;
+      return dates.map((date, i) => {
+        const pos = i / (count - 1) * (anchors.length - 1);
+        const left = Math.floor(pos);
+        const right = Math.min(anchors.length - 1, left + 1);
+        const mix = pos - left;
+        const base = anchors[left] + (anchors[right] - anchors[left]) * mix;
+        const wave = Math.sin(i * 0.11 + t.symbol.length) * base * 0.018 + Math.sin(i * 0.027 + t.price) * base * 0.026;
+        return { date, close: Math.max(1, base + wave) };
+      });
+    }
+    function sma(values, span) {
+      return values.map((_, i) => {
+        if (i < span - 1) return null;
+        const slice = values.slice(i - span + 1, i + 1);
+        return slice.reduce((a, b) => a + b, 0) / span;
+      });
+    }
+    function bollinger(values, span = 20, mult = 2) {
+      return values.map((_, i) => {
+        if (i < span - 1) return { upper: null, lower: null };
+        const slice = values.slice(i - span + 1, i + 1);
+        const mid = slice.reduce((a, b) => a + b, 0) / span;
+        const variance = slice.reduce((a, b) => a + Math.pow(b - mid, 2), 0) / span;
+        const sd = Math.sqrt(variance);
+        return { upper: mid + sd * mult, lower: mid - sd * mult };
+      });
+    }
+    function fmtMonth(date) {
+      return date.toLocaleDateString("en-US", { month: "short", year: "2-digit" });
+    }
+
+    function render() {
+      const selected = bySymbol(state.selected);
+      document.getElementById("lastUpdated").value = state.lastUpdated || seed.lastUpdated;
+      document.getElementById("notes").value = state.notes || "";
+      renderRegime();
+      renderTiles();
+      renderRows();
+      renderSources();
+      renderTicker(selected);
+      renderOptions();
+      document.querySelectorAll("[data-layer]").forEach(input => {
+        input.checked = !!state.layers[input.dataset.layer];
+      });
+    }
+
+    function renderRegime() {
+      const redCount = tickers.flatMap(t => t.gates).filter(g => g === "bad").length;
+      const warnCount = tickers.flatMap(t => t.gates).filter(g => g === "warn").length;
+      const gates = redCount > 4 ? 0 : warnCount > 6 ? 1 : 2;
+      document.getElementById("gateCount").textContent = gates;
+      document.getElementById("regimeLabel").textContent = gates <= 1 ? "Patient — nibble only" : "Selective deployment";
+      document.querySelectorAll(".gate-meter i").forEach((el, i) => el.classList.toggle("on", i < gates));
+    }
+
+    function renderTiles() {
+      const host = document.getElementById("watchTiles");
+      host.innerHTML = "";
+      tickers.slice(0, 10).forEach(t => {
+        const b = document.createElement("button");
+        b.className = "watch-tile" + (t.symbol === state.selected ? " active" : "");
+        b.type = "button";
+        b.innerHTML = `<strong>${t.symbol}</strong><span>${t.state} · Tier ${t.tier}</span>`;
+        b.addEventListener("click", () => selectTicker(t.symbol));
+        b.addEventListener("contextmenu", e => showTickerMenu(e, t.symbol));
+        host.appendChild(b);
+      });
+    }
+
+    function renderRows() {
+      const host = document.getElementById("tickerRows");
+      host.innerHTML = "";
+      tickers.forEach(t => {
+        const tr = document.createElement("tr");
+        tr.className = t.symbol === state.selected ? "active" : "";
+        tr.tabIndex = 0;
+        tr.innerHTML = `
+          <td><strong class="num">${t.symbol}</strong><br><span style="color:var(--muted)">${t.name}</span></td>
+          <td><span class="pill ${t.state.includes("Rejected") || t.state.includes("Drift") ? "bad" : t.state.includes("warning") || t.state.includes("pullback") ? "warn" : "good"}">${t.state}</span></td>
+          <td><span class="gate-dots">${t.gates.map(g => `<i class="dot ${statusClass(g)}"></i>`).join("")}</span></td>
+          <td class="num">${t.tier}</td>
+          <td class="num">$${t.price}</td>
+          <td class="num">${t.add ? "$" + t.add : "—"}</td>
+          <td class="num">${t.truck ? "$" + t.truck : "—"}</td>
+          <td><span class="pill ${t.analyst.rating === "Buy" ? "good" : t.analyst.rating === "Hold" ? "warn" : ""}">${t.analyst.rating} ${t.analyst.spread}</span></td>
+          <td>${t.confluence ? '<span class="pill good">Confluence</span>' : '<span class="pill">None</span>'}</td>
+          <td>${t.kill}</td>
+          <td>${spark(t.data)}</td>`;
+        tr.addEventListener("click", () => selectTicker(t.symbol));
+        tr.addEventListener("contextmenu", e => showTickerMenu(e, t.symbol));
+        host.appendChild(tr);
+      });
+    }
+
+    function spark(data) {
+      const w = 112, h = 32, min = Math.min(...data), max = Math.max(...data);
+      const pts = data.map((v, i) => {
+        const x = (i / (data.length - 1)) * w;
+        const y = h - ((v - min) / Math.max(1, max - min)) * (h - 4) - 2;
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+      }).join(" ");
+      return `<svg class="spark" viewBox="0 0 ${w} ${h}" aria-hidden="true"><polyline fill="none" stroke="var(--accent)" stroke-width="2" points="${pts}"/></svg>`;
+    }
+
+    function renderSources() {
+      const host = document.getElementById("sourceList");
+      host.innerHTML = "";
+      Object.entries(state.sources).forEach(([key, src]) => {
+        const row = document.createElement("div");
+        row.className = "source-row";
+        row.innerHTML = `
+          <a href="${src.url}" target="_blank" rel="noreferrer">${src.label}</a>
+          <input value="${src.provider}" aria-label="${src.label} provider" data-source="${key}" data-part="provider">
+          <input value="${src.field}" aria-label="${src.label} field" data-source="${key}" data-part="field">`;
+        host.appendChild(row);
+      });
+      host.querySelectorAll("input").forEach(input => {
+        input.addEventListener("input", e => {
+          const { source, part } = e.target.dataset;
+          state.sources[source][part] = e.target.value;
+          persist();
+        });
+      });
+    }
+
+    function renderTicker(t) {
+      document.getElementById("selectedChip").textContent = t.symbol;
+      document.getElementById("tickerTitle").textContent = `${t.symbol} $${t.price}`;
+      document.getElementById("tickerThesis").textContent = t.thesis;
+      const stateEl = document.getElementById("tickerState");
+      stateEl.textContent = t.state;
+      stateEl.className = "pill " + (t.gates.includes("bad") ? "bad" : t.gates.includes("warn") ? "warn" : "good");
+      renderChart(t);
+      renderLadder(t);
+      renderGates(t);
+      renderAlerts(t);
+      renderFeed(t);
+    }
+
+    function renderChart(t) {
+      const svg = document.getElementById("chartSvg");
+      const w = 760, h = 390, pad = { l: 54, r: 22, t: 24, b: 54 };
+      const sessions = generateTwoYearSeries(t);
+      const vals = sessions.map(d => d.close);
+      const ma200 = sma(vals, 200);
+      const ma60 = sma(vals, 60);
+      const ma9 = sma(vals, 9);
+      const bands = bollinger(vals, 20, 2);
+      const levels = [t.price, t.fair, t.add, t.truck].filter(Boolean);
+      const bandVals = bands.flatMap(b => [b.upper, b.lower]).filter(Boolean);
+      const min = Math.min(...vals, ...levels, ...bandVals) * 0.92;
+      const max = Math.max(...vals, ...levels, ...bandVals) * 1.08;
+      const x = i => pad.l + (i / (vals.length - 1)) * (w - pad.l - pad.r);
+      const y = v => pad.t + (max - v) / (max - min) * (h - pad.t - pad.b);
+      const points = vals.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ");
+      const pathFor = arr => arr.map((v, i) => v == null ? "" : `${x(i).toFixed(1)},${y(v).toFixed(1)}`).filter(Boolean).join(" ");
+      const grid = [0, .25, .5, .75, 1].map(p => {
+        const yy = pad.t + p * (h - pad.t - pad.b);
+        const val = max - p * (max - min);
+        return `<line x1="${pad.l}" y1="${yy}" x2="${w-pad.r}" y2="${yy}" stroke="var(--border)"/><text x="12" y="${yy+4}" fill="var(--dim)" font-size="11" font-family="var(--font-mono)">$${val.toFixed(0)}</text>`;
+      }).join("");
+      const dateAxis = [0, Math.floor(vals.length / 2), vals.length - 1].map(i => `<text x="${x(i)}" y="${h-34}" fill="var(--dim)" font-size="10" text-anchor="${i === 0 ? "start" : i === vals.length - 1 ? "end" : "middle"}" font-family="var(--font-mono)">${fmtMonth(sessions[i].date)}</text>`).join("");
+      const bandUpper = bands.map(b => b.upper);
+      const bandLower = bands.map(b => b.lower);
+      const bandArea = state.layers.ma ? `<polyline fill="none" stroke="var(--dim)" stroke-width="1" stroke-opacity=".36" points="${pathFor(bandUpper)}"/><polyline fill="none" stroke="var(--dim)" stroke-width="1" stroke-opacity=".36" points="${pathFor(bandLower)}"/>` : "";
+      const ma = state.layers.ma ? `
+        ${bandArea}
+        <polyline fill="none" stroke="var(--muted)" stroke-width="1.35" stroke-dasharray="7 6" points="${pathFor(ma200)}"/>
+        <polyline fill="none" stroke="var(--warn)" stroke-width="1.25" stroke-opacity=".85" points="${pathFor(ma60)}"/>
+        <polyline fill="none" stroke="var(--fg)" stroke-width="1.15" stroke-opacity=".8" points="${pathFor(ma9)}"/>
+        <text x="${w-pad.r-118}" y="${pad.t+13}" fill="var(--dim)" font-size="10" font-family="var(--font-mono)">200 / 60 / 9 MA · BB</text>` : "";
+      const fib = state.layers.fib ? [0.382,0.5,0.618,0.786].map(f => {
+        const level = max - (max - min) * f;
+        return `<line x1="${pad.l}" y1="${y(level)}" x2="${w-pad.r}" y2="${y(level)}" stroke="var(--warn)" stroke-opacity=".42"/><text x="${w-pad.r-62}" y="${y(level)-5}" fill="var(--warn)" font-size="11" font-family="var(--font-mono)">Fib ${(f*100).toFixed(1)}%</text>`;
+      }).join("") : "";
+      const entry = t.add ? `<rect x="${pad.l}" y="${y(t.add)-10}" width="${w-pad.l-pad.r}" height="20" fill="var(--success)" opacity=".12"/><text x="${pad.l+8}" y="${y(t.add)-15}" fill="var(--success)" font-size="12" font-family="var(--font-mono)">Add zone $${t.add}</text>` : "";
+      const rsi = state.layers.rsi ? `<g transform="translate(0,315)"><line x1="${pad.l}" x2="${w-pad.r}" y1="28" y2="28" stroke="var(--border)"/><text x="12" y="32" fill="var(--dim)" font-size="11" font-family="var(--font-mono)">RSI</text><rect x="${pad.l}" y="16" width="${(w-pad.l-pad.r) * t.rsi/100}" height="20" fill="var(--accent)" opacity=".55"/><text x="${pad.l + 8}" y="30" fill="var(--fg)" font-size="11" font-family="var(--font-mono)">${t.rsi}</text></g>` : "";
+      svg.innerHTML = `<rect width="${w}" height="${h}" fill="oklch(10% 0.014 250)"/>${grid}${dateAxis}${fib}${entry}${ma}<polyline fill="none" stroke="var(--accent)" stroke-width="3" points="${points}"/><circle cx="${x(vals.length-1)}" cy="${y(vals.at(-1))}" r="5" fill="var(--fg)"/><text x="${pad.l}" y="${h-17}" fill="var(--dim)" font-size="11" font-family="var(--font-mono)">Default: last two calendar years. Master price layer drives gates, alerts, options, and source mapping.</text>${rsi}`;
+    }
+
+    function renderLadder(t) {
+      const rows = [
+        ["Current", t.price, 100],
+        ["Fair", t.fair, Math.min(100, t.fair / Math.max(t.price, 1) * 82)],
+        ["Add", t.add, t.add ? Math.min(100, t.add / Math.max(t.price, 1) * 82) : 0],
+        ["Truck", t.truck, t.truck ? Math.min(100, t.truck / Math.max(t.price, 1) * 82) : 0]
+      ];
+      document.getElementById("ladder").innerHTML = rows.map(([label, value, pct]) => `
+        <div class="ladder-row"><span>${label}</span><div class="track"><span style="width:${pct}%"></span></div><strong class="num">${value ? "$" + value : "—"}</strong></div>
+      `).join("");
+      document.getElementById("analystConsensus").innerHTML = `<span>Analyst consensus</span><strong class="num">${t.analyst.rating} · $${t.analyst.target} · ${t.analyst.spread}</strong>`;
+    }
+
+    function renderGates(t) {
+      document.getElementById("gateSummary").innerHTML = t.gates.map((g, i) => `<span class="pill ${statusClass(g)}">G${i+1}<i class="dot ${statusClass(g)}"></i></span>`).join("");
+      document.getElementById("gateText").textContent = "G1 knowable, G2 healthy, G3 price-implied belief, G4 independent thesis and kill criterion.";
+    }
+
+    function renderAlerts(t) {
+      const alerts = [];
+      if (t.confluence) alerts.push(["good", `${t.symbol} confluence zone: fundamental Add aligns with technical support.`]);
+      if (t.kill !== "OK") alerts.push(["warn", `${t.symbol} kill status: ${t.kill}. Review before sizing.`]);
+      if (t.gates.includes("bad")) alerts.push(["bad", `${t.symbol} has a failed gate. Disable core deployment.`]);
+      if (!alerts.length) alerts.push(["good", `${t.symbol} has no urgent alert; keep monitoring source updates.`]);
+      document.getElementById("alerts").innerHTML = alerts.map(([s, copy]) => `<div class="alert"><i class="dot ${s}"></i><span>${copy}</span></div>`).join("");
+    }
+
+    function renderFeed(t) {
+      document.getElementById("tickerFeed").innerHTML = t.news.map(([source, copy, url]) => `
+        <div class="feed-item">
+          <span class="feed-meta">${source}</span>
+          <a href="${url}" target="_blank" rel="noreferrer">${copy}</a>
+        </div>
+      `).join("");
+    }
+
+    function renderOptions() {
+      const host = document.getElementById("optionsList");
+      document.getElementById("optionsPanel").style.display = state.layers.options ? "block" : "none";
+      host.innerHTML = Object.entries(state.options).map(([name, value]) => `
+        <div class="field-row">
+          <label>${name} IV percentile</label>
+          <input type="number" min="0" max="100" value="${value}" data-option="${name}">
+        </div>
+        <div class="cheap-label ${cheapClass(value)}">${cheapLabel(value)} · OTM index puts carry structural skew and are rarely truly cheap.</div>
+      `).join("");
+      host.querySelectorAll("input").forEach(input => {
+        input.addEventListener("input", e => {
+          state.options[e.target.dataset.option] = Number(e.target.value);
+          persist();
+          renderOptions();
+        });
+      });
+    }
+
+    function selectTicker(symbol) {
+      state.selected = symbol;
+      persist();
+      render();
+    }
+
+    let contextTicker = state.selected;
+    function showTickerMenu(event, symbol) {
+      event.preventDefault();
+      contextTicker = symbol;
+      selectTicker(symbol);
+      const menu = document.getElementById("tickerMenu");
+      document.getElementById("contextSymbol").textContent = `${symbol} actions`;
+      menu.classList.add("open");
+      menu.setAttribute("aria-hidden", "false");
+      const x = Math.min(event.clientX, window.innerWidth - menu.offsetWidth - 12);
+      const y = Math.min(event.clientY, window.innerHeight - menu.offsetHeight - 12);
+      menu.style.left = Math.max(8, x) + "px";
+      menu.style.top = Math.max(8, y) + "px";
+    }
+
+    function closeTickerMenu() {
+      const menu = document.getElementById("tickerMenu");
+      menu.classList.remove("open");
+      menu.setAttribute("aria-hidden", "true");
+    }
+
+    document.querySelectorAll("[data-layer]").forEach(input => {
+      input.addEventListener("change", e => {
+        state.layers[e.target.dataset.layer] = e.target.checked;
+        persist();
+        renderTicker(bySymbol(state.selected));
+        renderOptions();
+      });
+    });
+    document.getElementById("notes").addEventListener("input", e => { state.notes = e.target.value; persist(); });
+    document.getElementById("lastUpdated").addEventListener("input", e => { state.lastUpdated = e.target.value; persist(); });
+    document.getElementById("saveBtn").addEventListener("click", persist);
+    document.getElementById("resetBtn").addEventListener("click", () => { localStorage.removeItem(STORE_KEY); state = load(); render(); });
+    document.getElementById("exportBtn").addEventListener("click", async () => {
+      const payload = JSON.stringify(state, null, 2);
+      try { await navigator.clipboard.writeText(payload); }
+      catch (_) {}
+      const blob = new Blob([payload], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "codex-control-panel-state.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+    document.getElementById("openLargeChart").addEventListener("click", () => {
+      window.location.href = `chart.html?symbol=${encodeURIComponent(contextTicker)}`;
+    });
+    document.getElementById("contextSelect").addEventListener("click", () => { selectTicker(contextTicker); closeTickerMenu(); });
+    document.addEventListener("click", e => {
+      if (!document.getElementById("tickerMenu").contains(e.target)) closeTickerMenu();
+    });
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape") closeTickerMenu();
+    });
+
+    render();
+  </script>
+</body>
+</html>

@@ -1,0 +1,285 @@
+:root {
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --surface-warm: #eef4ff;
+  --fg: #172033;
+  --fg-2: #3b4658;
+  --muted: #6b7689;
+  --border: #d8dee8;
+  --border-soft: #edf1f6;
+  --accent: #2563eb;
+  --accent-on: #ffffff;
+  --success: #16a34a;
+  --warn: #f59e0b;
+  --danger: #dc2626;
+  --font-body: Inter, system-ui, sans-serif;
+  --font-mono: "SF Mono", ui-monospace, Menlo, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+}
+
+.page {
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 1280px;
+  margin: 0 auto 20px;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+h1 {
+  font-size: 30px;
+  line-height: 1.12;
+}
+
+h2 {
+  font-size: 18px;
+}
+
+.eyebrow {
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.iconButton {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--fg);
+  cursor: pointer;
+}
+
+.summaryGrid,
+.workGrid {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  gap: 16px;
+}
+
+.summaryGrid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-bottom: 16px;
+}
+
+.workGrid {
+  grid-template-columns: minmax(0, 1.45fr) minmax(340px, 0.85fr);
+}
+
+.metric,
+.panel {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.metric {
+  min-height: 112px;
+  padding: 16px;
+  display: grid;
+  gap: 8px;
+}
+
+.metricIcon {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: var(--surface-warm);
+  color: var(--accent);
+}
+
+.metric span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.metric strong {
+  font-size: 24px;
+}
+
+.panel {
+  overflow: hidden;
+}
+
+.sideStack {
+  display: grid;
+  gap: 16px;
+}
+
+.panelHeader {
+  padding: 16px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-soft);
+  text-align: left;
+  vertical-align: top;
+  font-size: 14px;
+}
+
+th {
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+td span {
+  display: block;
+  max-width: 420px;
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.good {
+  color: var(--success);
+}
+
+.searchBox {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.searchBox label {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.searchBox input {
+  width: 100%;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--fg);
+  font: inherit;
+}
+
+.searchBox input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16);
+}
+
+.symbolList {
+  display: grid;
+  max-height: 310px;
+  overflow: auto;
+}
+
+.symbolRow {
+  display: grid;
+  grid-template-columns: 78px minmax(0, 1fr);
+  gap: 4px 10px;
+  width: 100%;
+  padding: 12px 16px;
+  border: 0;
+  border-bottom: 1px solid var(--border-soft);
+  background: var(--surface);
+  color: var(--fg);
+  text-align: left;
+  cursor: pointer;
+}
+
+.symbolRow:hover {
+  background: var(--surface-warm);
+}
+
+.symbolRow span {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--fg-2);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.symbolRow em {
+  grid-column: 2;
+  color: var(--muted);
+  font-size: 11px;
+  font-style: normal;
+  text-transform: uppercase;
+}
+
+.macroList {
+  display: grid;
+}
+
+.macroRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.macroRow span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 3px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: var(--surface-warm);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+@media (max-width: 900px) {
+  .summaryGrid,
+  .workGrid {
+    grid-template-columns: 1fr;
+  }
+}

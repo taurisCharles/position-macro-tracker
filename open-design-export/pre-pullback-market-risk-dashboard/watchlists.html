@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Watchlists 03</title>
+  <style>
+    :root{--bg:oklch(13% .018 250);--surface:oklch(18% .018 250);--surface-2:oklch(22% .018 250);--fg:oklch(93% .01 250);--muted:oklch(68% .014 250);--dim:oklch(50% .014 250);--border:oklch(31% .014 250);--accent:oklch(62% .15 235);--success:oklch(67% .16 150);--warn:oklch(77% .16 78);--danger:oklch(64% .19 25);--font-body:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",system-ui,sans-serif;--font-mono:"JetBrains Mono","IBM Plex Mono",ui-monospace,Menlo,monospace}
+    *{box-sizing:border-box}html{background:var(--bg);color:var(--fg);color-scheme:dark}body{margin:0;min-height:100vh;font-family:var(--font-body);background:var(--bg)}a{color:inherit;text-decoration:none}button,input,select{font:inherit}
+    .app{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:100vh}.rail{position:sticky;top:0;height:100vh;padding:18px 14px;border-right:1px solid var(--border);background:oklch(11% .016 250/.96)}.brand{display:flex;gap:10px;align-items:center;padding:8px 8px 18px;border-bottom:1px solid var(--border)}.mark{width:32px;height:32px;display:grid;place-items:center;border:1px solid var(--border);background:var(--surface);color:var(--accent);font:600 15px/1 var(--font-mono)}.brand h1{margin:0;font-size:18px}.brand p,.side-note{margin:3px 0 0;color:var(--muted);font-size:12px;line-height:1.45}.nav{display:grid;gap:6px;margin-top:18px}.nav a{display:flex;justify-content:space-between;align-items:center;min-height:38px;padding:0 10px;border:1px solid transparent;border-radius:6px;color:var(--muted)}.nav a.active{color:var(--fg);border-color:var(--border);background:var(--surface)}.ticker-stack{margin-top:18px;padding-top:16px;border-top:1px solid var(--border)}.kicker{color:var(--dim);font:600 11px/1 var(--font-mono);letter-spacing:.08em;text-transform:uppercase}
+    main{padding:18px;min-width:0}.topbar{display:flex;justify-content:space-between;gap:16px;align-items:end;margin-bottom:14px}h2{margin:0;font-size:clamp(26px,3vw,40px);line-height:1.05;letter-spacing:-.02em}.lead{margin:6px 0 0;max-width:78ch;color:var(--muted);font-size:14px;line-height:1.5}.toolbar{display:flex;gap:8px;flex-wrap:wrap}.btn,.select{min-height:36px;padding:0 12px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--fg);font-weight:550}.btn.primary{background:var(--accent);color:oklch(10% .015 250);border-color:transparent}
+    .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}.stat{padding:13px;border:1px solid var(--border);border-radius:8px;background:var(--surface)}.stat label{color:var(--dim);font:600 11px/1 var(--font-mono);letter-spacing:.08em;text-transform:uppercase}.stat strong{display:block;margin-top:8px;font:650 24px/1 var(--font-mono)}
+    .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.panel{border:1px solid var(--border);background:oklch(16% .017 250/.94);border-radius:8px;overflow:hidden}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:46px;padding:12px 14px;border-bottom:1px solid var(--border)}.panel-head h3{margin:0;font-size:15px}.panel-body{padding:14px}.ticker-card{display:grid;gap:10px;padding:12px;border:1px solid var(--border);border-radius:7px;background:var(--surface);margin-bottom:10px}.ticker-card:last-child{margin-bottom:0}.ticker-top{display:flex;justify-content:space-between;gap:12px;align-items:start}.ticker-top strong{font:650 18px/1 var(--font-mono)}.ticker-card p{margin:0;color:var(--muted);font-size:12px;line-height:1.4}.row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.mini{padding:8px;border:1px solid var(--border);border-radius:5px;background:var(--surface-2)}.mini span{display:block;color:var(--dim);font:600 10px/1 var(--font-mono);letter-spacing:.06em;text-transform:uppercase}.mini b{display:block;margin-top:5px;font:600 13px/1 var(--font-mono)}.pill{display:inline-flex;align-items:center;gap:7px;min-height:24px;padding:0 8px;border:1px solid var(--border);border-radius:999px;background:var(--surface-2);color:var(--muted);font:12px/1 var(--font-mono);white-space:nowrap}.pill.good{color:var(--success)}.pill.warn{color:var(--warn)}.pill.bad{color:var(--danger)}.links{display:flex;gap:8px;flex-wrap:wrap}.links a{color:var(--accent);font-size:12px}.empty{display:none;color:var(--muted);font-size:13px;padding:12px}
+    @media(max-width:1120px){.app,.grid{grid-template-columns:1fr}.rail{position:static;height:auto}.summary{grid-template-columns:repeat(2,1fr)}.topbar{align-items:start;flex-direction:column}}
+  </style>
+</head>
+<body>
+  <div class="app"><aside class="rail"><div class="brand"><div class="mark">CX</div><div><h1>Codex</h1><p>Portfolio decision engine</p></div></div><nav class="nav" aria-label="Primary"><a href="index.html">Command Center <span>01</span></a><a href="macro.html">Macro Regime <span>02</span></a><a href="screener.html">Screener <span>03</span></a><a class="active" href="watchlists.html">Watchlists <span>04</span></a><a href="ticker-detail.html">Ticker Detail <span>05</span></a><a href="trades.html">Trade Ideas <span>06</span></a><a href="positions.html">Positions <span>07</span></a><a href="alerts.html">Alerts <span>08</span></a></nav><div class="ticker-stack"><div class="kicker">Watchlist job</div><p class="side-note">Separate investable ideas from too-hard names, then route only valid names into chart timing.</p></div></aside>
+  <main><header class="topbar"><div><h2>Watchlists</h2><p class="lead">Frame for tiered lists: owned, entry-zone, waiting for pullback, speculative sleeve, and rejected. Each card routes to detail or large chart.</p></div><div class="toolbar"><select class="select" id="filter"><option value="all">All states</option><option value="active">Active only</option><option value="owned">Owned</option><option value="rejected">Rejected</option></select><button class="btn primary" id="save">Save view</button></div></header>
+    <section class="summary"><div class="stat"><label>Active ideas</label><strong id="activeCount">0</strong></div><div class="stat"><label>Owned</label><strong id="ownedCount">0</strong></div><div class="stat"><label>Entry candidates</label><strong id="entryCount">0</strong></div><div class="stat"><label>Rejected</label><strong id="rejectCount">0</strong></div></section>
+    <section class="grid" id="groups"></section>
+  </main></div>
+  <script>
+    const STORE = "codex-watchlists-view";
+    let tickers = [
+      {symbol:"GOOGL",name:"Alphabet",group:"Entry-zone",state:"Entry-Zone",tier:"A",price:350,add:313,truck:270,analyst:"Buy +13%",thesis:"Confluence near $312 combines Fib 38.2% and fundamental Add."},
+      {symbol:"META",name:"Meta",group:"Watchlist",state:"Watchlist",tier:"A",price:610,add:540,truck:450,analyst:"Buy +13%",thesis:"Above preferred Add zone; wait for pullback or support confirmation."},
+      {symbol:"MSFT",name:"Microsoft",group:"Knife warning",state:"Knife warning",tier:"A",price:367,add:340,truck:295,analyst:"Buy +24%",thesis:"Below falling 200-day; technical timing disabled until support stabilizes."},
+      {symbol:"AAPL",name:"Apple",group:"Needs pullback",state:"Needs pullback",tier:"B",price:297,add:228,truck:196,analyst:"Hold -19%",thesis:"Valuation gate remains caution for single-digit growth."},
+      {symbol:"NVDA",name:"Nvidia",group:"Drift",state:"Drift",tier:"C",price:209,add:145,truck:120,analyst:"Buy -9%",thesis:"Haircut mode pushes entry into $120-150."},
+      {symbol:"EPD",name:"Enterprise Products",group:"Owned",state:"Owned",tier:"A",price:31,add:29,truck:26,analyst:"Buy +16%",thesis:"In-circle income holding with healthy coverage."},
+      {symbol:"VNOM",name:"Viper Energy",group:"Owned",state:"Owned",tier:"A",price:48,add:43,truck:38,analyst:"Buy +15%",thesis:"Royalty exposure; watch commodity sensitivity and payout coverage."},
+      {symbol:"RDW",name:"Redwire",group:"Spec sleeve",state:"Spec Sleeve",tier:"S",price:18,add:15,truck:12,analyst:"Spec +22%",thesis:"Speculative sleeve only; premortem required before sizing."},
+      {symbol:"TSLA",name:"Tesla",group:"Rejected",state:"Rejected",tier:"D",price:330,add:0,truck:0,analyst:"Hold -21%",thesis:"Too-hard flag; technical entry disabled while rejected."},
+      {symbol:"ARM",name:"Arm",group:"Rejected",state:"Rejected",tier:"D",price:160,add:0,truck:0,analyst:"Hold -25%",thesis:"Pay-for-perfection valuation keeps it outside the process."}
+    ];
+    try {
+      const scout = JSON.parse(localStorage.getItem("codex-screener-scout") || "{}");
+      const promoted = Array.isArray(scout.promoted) ? scout.promoted : [];
+      const candidates = Array.isArray(scout.candidates) ? scout.candidates : [];
+      promoted.forEach(symbol => {
+        if (tickers.some(t => t.symbol === symbol)) return;
+        const c = candidates.find(item => item.symbol === symbol) || {symbol, name:"Scout candidate", price:0, add:0, score:"—", setup:"Promoted from Scout Screener"};
+        tickers.push({symbol:c.symbol,name:c.name,group:"Watchlist",state:"Watchlist",tier:"Scout",price:c.price || 0,add:c.add || 0,truck:0,analyst:`Scout ${c.score}`,thesis:c.setup || "Promoted from Scout Screener."});
+      });
+    } catch (_) {}
+    const stateClass = t => t.state.includes("Rejected") || t.state === "Drift" ? "bad" : t.state.includes("warning") || t.state.includes("pullback") ? "warn" : "good";
+    let view = localStorage.getItem(STORE) || "all";
+    const groups = ["Owned","Entry-zone","Watchlist","Needs pullback","Knife warning","Spec sleeve","Rejected"];
+    function visible(t){ return view === "all" || (view === "active" && !t.state.includes("Rejected")) || (view === "owned" && t.state === "Owned") || (view === "rejected" && t.state.includes("Rejected")); }
+    function render(){
+      document.getElementById("filter").value = view;
+      document.getElementById("activeCount").textContent = tickers.filter(t => !t.state.includes("Rejected")).length;
+      document.getElementById("ownedCount").textContent = tickers.filter(t => t.state === "Owned").length;
+      document.getElementById("entryCount").textContent = tickers.filter(t => t.state === "Entry-Zone").length;
+      document.getElementById("rejectCount").textContent = tickers.filter(t => t.state.includes("Rejected")).length;
+      document.getElementById("groups").innerHTML = groups.map(group => {
+        const cards = tickers.filter(t => t.group === group && visible(t)).map(t => `<article class="ticker-card">
+          <div class="ticker-top"><div><strong>${t.symbol}</strong><p>${t.name}</p></div><span class="pill ${stateClass(t)}">${t.state}</span></div>
+          <p>${t.thesis}</p>
+          <div class="row"><div class="mini"><span>Price</span><b>$${t.price}</b></div><div class="mini"><span>Add</span><b>${t.add ? "$"+t.add : "—"}</b></div><div class="mini"><span>Truck</span><b>${t.truck ? "$"+t.truck : "—"}</b></div></div>
+          <div class="links"><a href="chart.html?symbol=${t.symbol}">Large chart</a><a href="ticker-detail.html?symbol=${t.symbol}">Ticker detail</a><a href="trades.html?symbol=${t.symbol}">Trade idea</a><span class="pill">Tier ${t.tier}</span><span class="pill">${t.analyst}</span></div>
+        </article>`).join("");
+        return `<section class="panel"><div class="panel-head"><h3>${group}</h3><span class="pill">${tickers.filter(t=>t.group===group).length}</span></div><div class="panel-body">${cards || '<div class="empty" style="display:block">No names in this view.</div>'}</div></section>`;
+      }).join("");
+    }
+    document.getElementById("filter").addEventListener("change", e => { view = e.target.value; render(); });
+    document.getElementById("save").addEventListener("click", () => localStorage.setItem(STORE, view));
+    render();
+  </script>
+</body>
+</html>
